@@ -1,3 +1,4 @@
+/*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.cmp.compiler;
 
 import nl.agiletech.flow.project.types.Context;

@@ -1,3 +1,4 @@
+/*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.common.io;
 
 import java.io.File;

@@ -1,3 +1,4 @@
+/*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.common.collections;
 
 import java.util.Collection;

@@ -1,3 +1,4 @@
+/*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.project.types;
 
 import nl.agiletech.flow.project.inspect.AssetInspector;

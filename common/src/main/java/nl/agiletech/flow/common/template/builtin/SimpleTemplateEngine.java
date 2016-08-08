@@ -1,3 +1,4 @@
+/*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.common.template.builtin;
 
 import java.io.BufferedReader;

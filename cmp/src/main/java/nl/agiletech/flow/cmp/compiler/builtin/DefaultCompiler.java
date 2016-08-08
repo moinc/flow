@@ -1,3 +1,4 @@
+/*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.cmp.compiler.builtin;
 
 import java.io.IOException;

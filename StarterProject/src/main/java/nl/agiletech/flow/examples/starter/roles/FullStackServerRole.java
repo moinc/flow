@@ -1,3 +1,4 @@
+/*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.examples.starter.roles;
 
 import nl.agiletech.flow.project.annotation.Flow;

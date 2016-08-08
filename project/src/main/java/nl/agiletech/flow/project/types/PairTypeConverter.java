@@ -1,3 +1,4 @@
+/*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.project.types;
 
 public class PairTypeConverter implements TypeConverter<Pair, Object> {

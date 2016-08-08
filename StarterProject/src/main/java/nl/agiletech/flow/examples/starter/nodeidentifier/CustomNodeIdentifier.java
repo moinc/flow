@@ -1,3 +1,4 @@
+/*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.examples.starter.nodeidentifier;
 
 import nl.agiletech.flow.project.annotation.Flow;

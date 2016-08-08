@@ -1,3 +1,4 @@
+/*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.cmp;
 
 import org.apache.commons.cli.Option;

@@ -1,3 +1,4 @@
+/*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.cmp.exec.responsetypes;
 
 import java.io.IOException;
