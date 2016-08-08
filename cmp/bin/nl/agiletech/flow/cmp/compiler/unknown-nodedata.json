@@ -1,6 +1,0 @@
-{
-	"entries" : [
-		{"id" : "1" , "key" : "hostName", "value" : "unknown.local"},
-		{"id" : "2" , "key" : "name", "value" : "unknown"},
-		{"id" : "3" , "key" : "privateIp", "value" : "10.0.0.1"}]
-}

@@ -1,9 +1,0 @@
-{
-	"settings" : [
-		{"key" : "fileRoot", "value" : "/tmp/flow/files"}
-	],
-	"supportedPlatforms" : [
-		{"key" : "Darwin", "value" : "nl.agiletech.flow.osx"},
-		{"key" : "Debian", "value" : "nl.agiletech.flow.debian"}
-	]
-}
