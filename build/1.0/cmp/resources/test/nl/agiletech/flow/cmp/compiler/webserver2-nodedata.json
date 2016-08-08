@@ -1,6 +1,0 @@
-{
-	"entries" : [
-		{"id" : "1" , "key" : "hostName", "value" : "webserver2.local"},
-		{"id" : "2" , "key" : "name", "value" : "webserver2"},
-		{"id" : "3" , "key" : "privateIp", "value" : "10.0.0.2"}]
-}
