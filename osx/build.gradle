@@ -1,0 +1,31 @@
+dependencies {
+    testCompile 'junit:junit:4.12'
+    compile project(':common')
+    compile project(':project')
+	compile group: 'commons-cli', name: 'commons-cli', version: '1.3.1'
+}
+
+project.ext {
+	fullComponentName = "agiletech-flow-osx"
+}
+
+jar {
+    archiveName = "${project.fullComponentName}-${project.version}.jar"
+
+    from {
+
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+
+    manifest {
+        
+    }
+
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}

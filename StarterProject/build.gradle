@@ -1,0 +1,29 @@
+dependencies {
+	testCompile 'junit:junit:4.12'
+	compile project(':project')
+}
+
+project.ext {
+	fullComponentName = "StarterProject"
+}
+
+jar {
+    archiveName = "${project.fullComponentName}.jar"
+
+    from {
+
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+
+    manifest {
+        
+    }
+
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}

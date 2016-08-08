@@ -1,0 +1,29 @@
+dependencies {
+	testCompile 'junit:junit:4.12'
+	compile project(':common')
+}
+
+project.ext {
+	fullComponentName = "agiletech-flow-project"
+}
+
+jar {
+    archiveName = "${project.fullComponentName}-${project.version}.jar"
+
+    from {
+
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+
+    manifest {
+        attributes 'Main-Class': 'nl.agiletech.flow.bot.Main'
+    }
+
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}

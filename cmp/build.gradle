@@ -1,0 +1,33 @@
+dependencies {
+	testCompile 'junit:junit:4.12'
+	compile project(':common')
+	compile project(':project')
+	compile project(':osx')
+	compile project(':debian')
+	compile group: 'commons-cli', name: 'commons-cli', version: '1.3.1'
+}
+
+project.ext {
+	fullComponentName = "agiletech-flow-cmp"
+}
+
+jar {
+    archiveName = "${project.fullComponentName}-${project.version}.jar"
+
+    from {
+
+        configurations.runtime.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+
+    manifest {
+        attributes 'Main-Class': 'nl.agiletech.flow.cmp.Main'
+    }
+
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
+}
