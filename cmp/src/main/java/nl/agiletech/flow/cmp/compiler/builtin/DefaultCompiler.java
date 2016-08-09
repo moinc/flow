@@ -7,17 +7,19 @@ import java.util.logging.Logger;
 
 import nl.agiletech.flow.cmp.compiler.CompileException;
 import nl.agiletech.flow.cmp.compiler.Compiler;
-import nl.agiletech.flow.cmp.jarinspector.JarInspector;
 import nl.agiletech.flow.cmp.jarinspector.InspectorLoadException;
+import nl.agiletech.flow.cmp.jarinspector.JarInspector;
 import nl.agiletech.flow.cmp.project.ConfigurationResolver;
 import nl.agiletech.flow.cmp.project.Configurator;
 import nl.agiletech.flow.cmp.project.DefaultNodeIdentifier;
 import nl.agiletech.flow.cmp.project.DependencyResolver;
-import nl.agiletech.flow.cmp.project.ProjectConfiguration;
 import nl.agiletech.flow.cmp.project.GlobalConfigurationMapper;
 import nl.agiletech.flow.cmp.project.NodeResolver;
-import nl.agiletech.flow.project.types.NodeId;
+import nl.agiletech.flow.cmp.project.PlatformResolver;
+import nl.agiletech.flow.cmp.project.ProjectConfiguration;
+import nl.agiletech.flow.common.util.StringUtil;
 import nl.agiletech.flow.project.types.Context;
+import nl.agiletech.flow.project.types.NodeId;
 
 public class DefaultCompiler implements Compiler {
 	private static final Logger LOG = Logger.getLogger(DefaultCompiler.class.getName());
@@ -41,19 +43,18 @@ public class DefaultCompiler implements Compiler {
 	public Context compile() throws CompileException {
 		LOG.info("--- compile ---");
 
-		// create object that holds all project specific classe and resources
+		// create object that holds all project specific classes and resources
 		ProjectConfiguration projectConfiguration = new ProjectConfiguration();
 
 		try (JarInspector jarInspector = JarInspector.loadFrom(compileOptions.projectFile, projectConfiguration)) {
 			// inspect project file
-
 			jarInspector.inspect();
 
 			// create the context
 			Context context;
 			try {
-				context = Context.createInstance(compileOptions.configurationSettings, compileOptions.requestType,
-						compileOptions.nodeData);
+				context = Context.createInstance(new DefaultContextValidator(projectConfiguration),
+						compileOptions.configurationSettings, compileOptions.requestType, compileOptions.nodeData);
 			} catch (Exception e) {
 				throw new CompileException("failed to create context", e);
 			}
@@ -88,6 +89,15 @@ public class DefaultCompiler implements Compiler {
 
 			// resolve dependencies
 			DependencyResolver.createInstance(context, projectConfiguration).resolve();
+
+			// locate platform
+			PlatformResolver.createInstance(context, projectConfiguration).resolve();
+
+			context.validate();
+
+			if (!context.getValidationErrors().isEmpty()) {
+				throw new CompileException("invalid context: " + StringUtil.join(context.getValidationErrors(), ", "));
+			}
 
 			return context;
 

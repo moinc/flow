@@ -30,7 +30,6 @@ import nl.agiletech.flow.project.inspect.TimezoneInspector;
 import nl.agiletech.flow.project.inspect.VirtualMachineInspector;
 
 abstract class AbstractNode extends Task implements TakesContext {
-	final String platform;
 	final List<String> hostNames = new ArrayList<>();
 	final List<String> roles = new ArrayList<>();
 
@@ -62,15 +61,13 @@ abstract class AbstractNode extends Task implements TakesContext {
 	public DhcpInspector dhcp = new DhcpInspector();
 	// end inspectors
 
-	public AbstractNode(String platform, String hostName) {
-		this(platform, new String[] { hostName });
+	public AbstractNode(String hostName) {
+		this(new String[] { hostName });
 	}
 
-	public AbstractNode(String platform, String[] hostNames) {
+	public AbstractNode(String[] hostNames) {
 		super(false);
-		assert platform != null && !platform.isEmpty();
 		assert hostNames != null && hostNames.length != 0;
-		this.platform = platform;
 		for (String hostName : hostNames) {
 			this.hostNames.add(hostName);
 		}
@@ -89,9 +86,5 @@ abstract class AbstractNode extends Task implements TakesContext {
 			}
 		}
 		return false;
-	}
-
-	public String getPlatform() {
-		return platform;
 	}
 }

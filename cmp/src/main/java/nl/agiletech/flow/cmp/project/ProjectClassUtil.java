@@ -15,6 +15,7 @@ import nl.agiletech.flow.project.types.File;
 import nl.agiletech.flow.project.types.Inspector;
 import nl.agiletech.flow.project.types.Node;
 import nl.agiletech.flow.project.types.NodeIdentifier;
+import nl.agiletech.flow.project.types.Platform;
 import nl.agiletech.flow.project.types.Role;
 import nl.agiletech.flow.project.types.Template;
 
@@ -39,6 +40,9 @@ public class ProjectClassUtil {
 			}
 			if (isSubclassOf(clazz, Node.class)) {
 				return ProjectClassType.NODE;
+			}
+			if (isSubclassOf(clazz, Platform.class)) {
+				return ProjectClassType.PLATFORM;
 			}
 			if (isSubclassOf(clazz, Role.class)) {
 				return ProjectClassType.ROLE;

@@ -19,6 +19,8 @@ import nl.agiletech.flow.common.template.builtin.SimpleTemplateEngine;
 public class Context implements ProvidesContext {
 	private static final Logger LOG = Logger.getLogger(Context.class.getName());
 
+	final ContextValidator contextValidator;
+	final List<String> validationErrors = new ArrayList<>();
 	final ConfigurationSettings configurationSettings;
 	final UUID sessionId;
 	final RequestType requestType;
@@ -27,28 +29,32 @@ public class Context implements ProvidesContext {
 
 	NodeId nodeId = NodeId.UNKNOWN;
 	Node node;
+	Platform platform;
 	TemplateEngine templateEngine;
 	final Map<String, Object> configuration = new LinkedHashMap<>();
 	final List<Object> dependencies = new ArrayList<>();
 
-	public static Context createInstance(ConfigurationSettings configurationSettings, RequestType requestType)
-			throws Exception {
-		return new Context(configurationSettings, UUID.randomUUID(), requestType, NodeData.createInstance());
-	}
-
-	public static Context createInstance(ConfigurationSettings configurationSettings, RequestType requestType,
-			NodeData nodeData) throws Exception {
-		return new Context(configurationSettings, UUID.randomUUID(), requestType, nodeData);
-	}
-
-	public static Context reviveInstance(ConfigurationSettings configurationSettings, UUID sessionId,
+	public static Context createInstance(ContextValidator contextValidator, ConfigurationSettings configurationSettings,
 			RequestType requestType) throws Exception {
-		return new Context(configurationSettings, sessionId, requestType, NodeData.createInstance());
+		return new Context(contextValidator, configurationSettings, UUID.randomUUID(), requestType,
+				NodeData.createInstance());
 	}
 
-	private Context(ConfigurationSettings configurationSettings, UUID sessionId, RequestType requestType,
-			NodeData nodeData) throws Exception {
-		assert configurationSettings != null && sessionId != null && requestType != null && nodeData != null;
+	public static Context createInstance(ContextValidator contextValidator, ConfigurationSettings configurationSettings,
+			RequestType requestType, NodeData nodeData) throws Exception {
+		return new Context(contextValidator, configurationSettings, UUID.randomUUID(), requestType, nodeData);
+	}
+
+	public static Context reviveInstance(ContextValidator contextValidator, ConfigurationSettings configurationSettings,
+			UUID sessionId, RequestType requestType) throws Exception {
+		return new Context(contextValidator, configurationSettings, sessionId, requestType, NodeData.createInstance());
+	}
+
+	private Context(ContextValidator contextValidator, ConfigurationSettings configurationSettings, UUID sessionId,
+			RequestType requestType, NodeData nodeData) throws Exception {
+		assert contextValidator != null && configurationSettings != null && sessionId != null && requestType != null
+				&& nodeData != null;
+		this.contextValidator = contextValidator;
 		this.configurationSettings = configurationSettings;
 		this.sessionId = sessionId;
 		this.requestType = requestType;
@@ -123,6 +129,14 @@ public class Context implements ProvidesContext {
 		return node;
 	}
 
+	public Platform getPlatform() {
+		return platform;
+	}
+
+	public void setPlatform(Platform platform) {
+		this.platform = platform;
+	}
+
 	public TemplateEngine getTemplateEngine() {
 		return templateEngine;
 	}
@@ -177,5 +191,14 @@ public class Context implements ProvidesContext {
 			}
 		}
 		return result;
+	}
+
+	public void validate() {
+		validationErrors.clear();
+		contextValidator.validate(this, validationErrors);
+	}
+
+	public List<String> getValidationErrors() {
+		return validationErrors;
 	}
 }

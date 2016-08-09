@@ -2,7 +2,11 @@
 package nl.agiletech.flow.cmp.project;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import nl.agiletech.flow.cmp.jarinspector.InspectionObserver;
@@ -12,7 +16,7 @@ import nl.agiletech.flow.project.types.NodeIdentifier;
 import nl.agiletech.flow.project.types.Role;
 import nl.agiletech.flow.project.types.Task;
 
-public class ProjectConfiguration implements InspectionObserver {
+public class ProjectConfiguration implements InspectionObserver, DependencyObserver {
 	private static final Logger LOG = Logger.getLogger(ProjectConfiguration.class.getName());
 
 	final List<Class<?>> configurationClasses = new ArrayList<>();
@@ -22,6 +26,10 @@ public class ProjectConfiguration implements InspectionObserver {
 	final List<Class<? extends Node>> nodeClasses = new ArrayList<>();
 	final List<Class<? extends Task>> taskClasses = new ArrayList<>();
 	final List<Class<?>> tagClasses = new ArrayList<>();
+
+	// indices
+	final Map<Object, Set<Class<?>>> dependencyIndex = new HashMap<>();
+	final Map<Class<?>, Set<Object>> invertedDependencyIndex = new HashMap<>();
 
 	public void addConfigurationClass(Class<?> clazz) {
 		LOG.fine("adding configuration class: " + clazz.getName());
@@ -58,6 +66,26 @@ public class ProjectConfiguration implements InspectionObserver {
 		tagClasses.add(clazz);
 	}
 
+	public void addDependencyIndexEntry(Object obj, Class<?> declaredIn) {
+		LOG.fine("adding dependency to index; object: " + obj + " was declared in: " + declaredIn.getName());
+
+		Set<Class<?>> list = dependencyIndex.get(obj);
+		if (list == null) {
+			list = new LinkedHashSet<>();
+			dependencyIndex.put(obj, list);
+		}
+		list.add(declaredIn);
+
+		Set<Object> list2 = invertedDependencyIndex.get(declaredIn);
+		if (list2 == null) {
+			list2 = new LinkedHashSet<>();
+			invertedDependencyIndex.put(declaredIn, list2);
+		}
+		list2.add(obj);
+	}
+
+	//
+
 	public List<Class<?>> getConfigurationClasses() {
 		return configurationClasses;
 	}
@@ -86,6 +114,14 @@ public class ProjectConfiguration implements InspectionObserver {
 		return tagClasses;
 	}
 
+	public Map<Object, Set<Class<?>>> getDependencyIndex() {
+		return dependencyIndex;
+	}
+
+	public Map<Class<?>, Set<Object>> getInvertedDependencyIndex() {
+		return invertedDependencyIndex;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void observe(Class<?> clazz) {
@@ -105,6 +141,8 @@ public class ProjectConfiguration implements InspectionObserver {
 			break;
 		case NODE:
 			addNodeClass((Class<? extends Node>) clazz);
+			break;
+		case PLATFORM:
 			break;
 		case NODE_IDENTIFIER:
 			addNodeIdentifierClass((Class<? extends NodeIdentifier>) clazz);
@@ -128,5 +166,10 @@ public class ProjectConfiguration implements InspectionObserver {
 		default:
 			break;
 		}
+	}
+
+	@Override
+	public void observe(Object obj, Class<?> declaredIn) {
+		addDependencyIndexEntry(obj, declaredIn);
 	}
 }

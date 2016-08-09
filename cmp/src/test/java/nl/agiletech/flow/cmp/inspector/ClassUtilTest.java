@@ -12,15 +12,18 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import nl.agiletech.flow.cmp.compiler.builtin.DefaultContextValidator;
 import nl.agiletech.flow.cmp.jarinspector.ClassUtil;
 import nl.agiletech.flow.cmp.jarinspector.ClassUtilException;
 import nl.agiletech.flow.cmp.jarinspector.ObjectDiscoveryOptions;
+import nl.agiletech.flow.cmp.project.ProjectConfiguration;
 import nl.agiletech.flow.project.annotation.Flow;
-import nl.agiletech.flow.project.types.BuiltIn;
 import nl.agiletech.flow.project.types.ConfigurationSettings;
-import nl.agiletech.flow.project.types.Node;
-import nl.agiletech.flow.project.types.RequestType;
 import nl.agiletech.flow.project.types.Context;
+import nl.agiletech.flow.project.types.ContextValidator;
+import nl.agiletech.flow.project.types.Node;
+import nl.agiletech.flow.project.types.Platform;
+import nl.agiletech.flow.project.types.RequestType;
 
 public class ClassUtilTest {
 	public static class TestClassWithoutConstructor {
@@ -37,6 +40,11 @@ public class ClassUtilTest {
 		public TestClassWithDefaultConstructor() {
 			//
 		}
+	}
+
+	@Flow
+	public static class SomePlatform implements Platform {
+
 	}
 
 	@Flow
@@ -57,28 +65,28 @@ public class ClassUtilTest {
 	@Flow
 	public static class SomeAnnotatedType3 extends Node {
 		public SomeAnnotatedType3() {
-			super(BuiltIn.PLATFORM_DEBIAN, "a");
+			super("a");
 		}
 	}
 
 	@Flow
 	public static class SomeAnnotatedType4 extends Node {
 		public SomeAnnotatedType4() {
-			super(BuiltIn.PLATFORM_DEBIAN, "a");
+			super("a");
 		}
 	}
 
 	@Flow
 	public static class SomeAnnotatedType5 extends Node {
 		public SomeAnnotatedType5() {
-			super(BuiltIn.PLATFORM_DEBIAN, "a");
+			super("a");
 		}
 	}
 
 	@Flow
 	public static class SomeAnnotatedType6 extends Node {
 		public SomeAnnotatedType6() {
-			super(BuiltIn.PLATFORM_DEBIAN, "a");
+			super("a");
 		}
 	}
 
@@ -141,6 +149,8 @@ public class ClassUtilTest {
 
 	private Context createContext() throws Exception {
 		ConfigurationSettings configurationSettings = ConfigurationSettings.createInstance();
-		return Context.createInstance(configurationSettings, RequestType.INSPECT);
+		ProjectConfiguration projectConfiguration = new ProjectConfiguration();
+		ContextValidator contextValidator = new DefaultContextValidator(projectConfiguration);
+		return Context.createInstance(contextValidator, configurationSettings, RequestType.INSPECT);
 	}
 }

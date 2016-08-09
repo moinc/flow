@@ -11,7 +11,12 @@ public abstract class Inspector<O> extends AbstractInspector<O> {
 
 	@Override
 	public void inspect(Context context, Catalog catalog) throws Exception {
-		catalog.add(readScript());
+		catalog.add(Instruction.createInstance(getClass(), getScriptResourceName(), "inspector",
+				Instruction.TYPE.INLINE_SHELL, readScript()));
+		// catalog.add(Instruction.createInstance(getClass(),
+		// getScriptResourceName(), "inspector",
+		// Instruction.TYPE.RESOURCE_SHELL,
+		// getPlatformDependentScriptResourceName()));
 	}
 
 	@Override
@@ -29,10 +34,4 @@ public abstract class Inspector<O> extends AbstractInspector<O> {
 	@Override
 	public void terminate(Context context) throws Exception {
 	}
-
-	@Override
-	public String getScriptResourceName() throws PlatformNotSupportedException {
-		return getPlatformDependentScriptResourceName();
-	}
-
 }

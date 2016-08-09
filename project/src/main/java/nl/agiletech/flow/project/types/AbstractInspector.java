@@ -1,11 +1,19 @@
 /*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.project.types;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.logging.Logger;
+
+import nl.agiletech.flow.common.io.FileUtil;
 
 // TODO: extend Task so Inspectors are invoked correctly to compile Catalogs.
 
 abstract class AbstractInspector<O> extends Task implements CanInspect<O> {
+	private static final Logger LOG = Logger.getLogger(AbstractInspector.class.getName());
+
 	public AbstractInspector() {
 		super(false);
 	}
@@ -17,28 +25,34 @@ abstract class AbstractInspector<O> extends Task implements CanInspect<O> {
 
 	public abstract O render(Context context) throws IOException;
 
-	protected String getPlatformDependentScriptResourceName() throws PlatformNotSupportedException {
-		String platform = context.getNode().getPlatform();
-		String packageName = context.getConfigurationSettings().getSupportedPlatform(context.getNode().getPlatform(),
-				"");
-		if (packageName.isEmpty()) {
-			throw new PlatformNotSupportedException(
-					"the platform '" + platform + "' specified by node: " + context.getNode() + " is not supported");
-		}
-		return packageName + "." + getClass().getSimpleName() + ".sh";
-	}
-
 	@Override
 	public String getVersion() {
 		return "default";
 	}
 
+	@Override
+	public String getScriptResourceName() {
+		return getClass().getSimpleName() + ".sh";
+	}
+
 	protected String readScript() throws PlatformNotSupportedException {
-		// try (InputStream inputStream =
-		// getClass().getResourceAsStream(resourceName)) {
-		// String script = FileUtil.readAsString(inputStream);
-		// catalog.add(script);
-		// }
-		return getScriptResourceName();
+		String resourceName = getScriptResourceName();
+		try (InputStream inputStream = getPlatform().getClass().getResourceAsStream(resourceName)) {
+			if (inputStream == null) {
+				throw new FileNotFoundException("missing resource: " + resourceName);
+			}
+			return FileUtil.readAsString(inputStream, StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			throw new PlatformNotSupportedException("failed to read resource: " + resourceName, e);
+		}
+	}
+
+	private Platform getPlatform() throws PlatformNotSupportedException {
+		Platform platform = context.getPlatform();
+		if (platform == null) {
+			throw new PlatformNotSupportedException(
+					"the platform '" + platform + "' specified by node: " + context.getNode() + " is not supported");
+		}
+		return platform;
 	}
 }

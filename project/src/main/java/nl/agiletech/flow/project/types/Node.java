@@ -5,12 +5,12 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 public abstract class Node extends AbstractNode {
-	public Node(String platform, String hostName) {
-		super(platform, hostName);
+	public Node(String hostName) {
+		super(hostName);
 	}
 
-	public Node(String platform, String[] hostNames) {
-		super(platform, hostNames);
+	public Node(String[] hostNames) {
+		super(hostNames);
 	}
 
 	@Override

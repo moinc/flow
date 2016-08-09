@@ -11,14 +11,19 @@ import nl.agiletech.flow.project.types.NodeData;
 import nl.agiletech.flow.project.types.RequestType;
 
 public class DefaultCompilerTest {
+
+	static File getProjectRoot() {
+		String currentDir = new File(".").getAbsolutePath();
+		return new File(currentDir).getParentFile().getParentFile();
+	}
+
+	static File projectFile = new File(getProjectRoot(), "build/1.0/StarterProject/libs/StarterProject.jar");
+
 	@Test
 	public void testShouldCompileForWebserver1() throws Exception {
 		ConfigurationSettings configurationSettings = ConfigurationSettings
 				.loadFrom(getClass().getResourceAsStream("flowconfig.json"));
 		NodeData nodeData = NodeData.loadFrom(getClass().getResourceAsStream("webserver1-nodedata.json"));
-
-		File projectFile = new File(
-				"/Users/moincreemers/Documents/Projecten/INTERNAL/flow/build/1.0/StarterProject/libs/StarterProject.jar");
 
 		DefaultCompilerOptions co = DefaultCompilerOptions.createInstance(configurationSettings, projectFile,
 				RequestType.INSPECT, nodeData);
@@ -32,9 +37,6 @@ public class DefaultCompilerTest {
 				.loadFrom(getClass().getResourceAsStream("flowconfig.json"));
 		NodeData nodeData = NodeData.loadFrom(getClass().getResourceAsStream("webserver2-nodedata.json"));
 
-		File projectFile = new File(
-				"/Users/moincreemers/Documents/Projecten/INTERNAL/flow/build/1.0/StarterProject/libs/StarterProject.jar");
-
 		DefaultCompilerOptions co = DefaultCompilerOptions.createInstance(configurationSettings, projectFile,
 				RequestType.INSPECT, nodeData);
 		Compiler comp = new DefaultCompiler(co);
@@ -46,9 +48,6 @@ public class DefaultCompilerTest {
 		ConfigurationSettings configurationSettings = ConfigurationSettings
 				.loadFrom(getClass().getResourceAsStream("flowconfig.json"));
 		NodeData nodeData = NodeData.loadFrom(getClass().getResourceAsStream("unknown-nodedata.json"));
-
-		File projectFile = new File(
-				"/Users/moincreemers/Documents/Projecten/INTERNAL/flow/build/1.0/StarterProject/libs/StarterProject.jar");
 
 		DefaultCompilerOptions co = DefaultCompilerOptions.createInstance(configurationSettings, projectFile,
 				RequestType.INSPECT, nodeData);

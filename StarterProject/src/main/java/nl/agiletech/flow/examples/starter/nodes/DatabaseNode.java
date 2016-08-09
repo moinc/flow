@@ -1,10 +1,11 @@
 /*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.examples.starter.nodes;
 
+import nl.agiletech.flow.debian.DebianPlatform;
 import nl.agiletech.flow.examples.starter.roles.DatabaseServerRole;
 import nl.agiletech.flow.project.annotation.Flow;
-import nl.agiletech.flow.project.types.BuiltIn;
 import nl.agiletech.flow.project.types.Node;
+import nl.agiletech.flow.project.types.Platform;
 import nl.agiletech.flow.project.types.Role;
 
 /**
@@ -15,8 +16,10 @@ import nl.agiletech.flow.project.types.Role;
  */
 @Flow
 public class DatabaseNode extends Node {
+	public Platform platform = new DebianPlatform();
+
 	public DatabaseNode() {
-		super(BuiltIn.PLATFORM_DARWIN, "database1.local");
+		super("database1.local");
 	}
 
 	public Role databaseServerRole = new DatabaseServerRole();

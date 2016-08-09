@@ -22,18 +22,18 @@ import nl.agiletech.flow.project.types.Template;
 public class DependencyResolver {
 	private static final Logger LOG = Logger.getLogger(DependencyResolver.class.getName());
 
-	public static DependencyResolver createInstance(Context context, ProjectConfiguration projectConfiguration) {
-		return new DependencyResolver(context, projectConfiguration);
+	public static DependencyResolver createInstance(Context context, DependencyObserver dependencyObserver) {
+		return new DependencyResolver(context, dependencyObserver);
 	}
 
 	final Context context;
-	final ProjectConfiguration projectConfiguration;
+	final DependencyObserver dependencyObserver;
 	final ObjectDiscoveryOptions options = ObjectDiscoveryOptions.createInstanceForDependencyDiscovery();
 
-	private DependencyResolver(Context context, ProjectConfiguration projectConfiguration) {
-		assert context != null && projectConfiguration != null;
+	private DependencyResolver(Context context, DependencyObserver dependencyObserver) {
+		assert context != null && dependencyObserver != null;
 		this.context = context;
-		this.projectConfiguration = projectConfiguration;
+		this.dependencyObserver = dependencyObserver;
 	}
 
 	public List<Object> resolve() throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
@@ -61,11 +61,12 @@ public class DependencyResolver {
 			} else {
 				// circular dependency found
 				Class<?> alreadyDefinedInClass = index.get(dependencyName);
-				LOG.fine("circular dependency error; encountered dependency " + dependencyName + " in " + obj.getClass()
+				LOG.warning("encountered circular dependency " + dependencyName + " in " + obj.getClass()
 						+ " but was already declared in " + alreadyDefinedInClass);
 			}
 		}
 		resolvedObjects.add(obj);
+		dependencyObserver.observe(obj, declaredIn);
 		LOG.info("+dependency: " + objName + " (" + projectClassType + ")");
 	}
 
@@ -118,6 +119,8 @@ public class DependencyResolver {
 		case CONFIG:
 			break;
 		case NODE:
+			break;
+		case PLATFORM:
 			break;
 		case NODE_IDENTIFIER:
 			break;

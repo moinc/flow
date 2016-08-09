@@ -11,7 +11,8 @@ public abstract class Component extends AbstractComponent {
 
 	@Override
 	public void inspect(Context context, Catalog catalog) {
-		catalog.add("which " + getPackageName());
+		catalog.add(Instruction.createInstance(getClass(), "packageVersion", "inspect component state",
+				Instruction.TYPE.INLINE_SHELL, "which " + getPackageName()));
 	}
 
 	@Override

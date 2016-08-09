@@ -109,6 +109,9 @@ public class CompileCommand implements CommandInfo, CommandExecutor {
 			File temp = TempFile.create();
 			try (OutputStream output = new FileOutputStream(temp)) {
 				ProjectExecutor.createInstance(output, context).run();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			// print output to console
 			LOG.info("--- output ---");
@@ -118,6 +121,8 @@ public class CompileCommand implements CommandInfo, CommandExecutor {
 		} catch (CompileException e) {
 			throw new CliException(e);
 		} catch (IOException e) {
+			throw new CliException(e);
+		} catch (Exception e) {
 			throw new CliException(e);
 		}
 	}
