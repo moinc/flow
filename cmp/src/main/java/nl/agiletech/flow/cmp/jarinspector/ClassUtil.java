@@ -57,28 +57,36 @@ public class ClassUtil {
 			if (options.isExpandCollections() && value instanceof Map<?, ?>) {
 				Map<?, ?> map = (Map<?, ?>) value;
 				for (Object k : map.keySet()) {
-					String key = k == null ? "" : k.toString();
-					Object val = map.get(k);
-					String concatenatedName = StringUtil.join(new Object[] { declaredInName, fieldName, key }, ".");
-					objects.put(concatenatedName, val);
+					if (options.getTypeFilter().include(obj.getClass())) {
+						String key = k == null ? "" : k.toString();
+						Object val = map.get(k);
+						String concatenatedName = StringUtil.join(new Object[] { declaredInName, fieldName, key }, ".");
+						objects.put(concatenatedName, val);
+					}
 				}
 			} else if (options.isExpandCollections() && value instanceof Collection<?>) {
 				Collection<?> col = (Collection<?>) value;
 				int i = 0;
 				for (Object val : col) {
-					String key = "item_" + i;
-					String concatenatedName = StringUtil.join(new Object[] { declaredInName, fieldName, key }, ".");
-					objects.put(concatenatedName, val);
-					i++;
+					if (options.getTypeFilter().include(val.getClass())) {
+						String key = "item_" + i;
+						String concatenatedName = StringUtil.join(new Object[] { declaredInName, fieldName, key }, ".");
+						objects.put(concatenatedName, val);
+						i++;
+					}
 				}
 			} else if (options.isExpandCollections() && value != null && value.getClass().isArray()) {
 				Object[] array = (Object[]) value;
+				int j = 0;
 				for (int i = 0; i < array.length; i++) {
-					String key = "item_" + i;
-					String concatenatedName = StringUtil.join(new Object[] { declaredInName, fieldName, key }, ".");
-					objects.put(concatenatedName, array[i]);
+					if (array[i] != null && options.getTypeFilter().include(array[i].getClass())) {
+						String key = "item_" + j;
+						String concatenatedName = StringUtil.join(new Object[] { declaredInName, fieldName, key }, ".");
+						objects.put(concatenatedName, array[i]);
+						j++;
+					}
 				}
-			} else {
+			} else if (options.getTypeFilter().include(value.getClass())) {
 				String concatenatedName = StringUtil.join(new Object[] { declaredInName, fieldName }, ".");
 				objects.put(concatenatedName, value);
 			}

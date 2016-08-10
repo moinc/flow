@@ -4,7 +4,9 @@ package nl.agiletech.flow.examples.starter.nodes;
 import nl.agiletech.flow.examples.starter.roles.ApplicationServerRole;
 import nl.agiletech.flow.osx.OsxPlatform;
 import nl.agiletech.flow.project.annotation.Flow;
+import nl.agiletech.flow.project.types.Identity;
 import nl.agiletech.flow.project.types.Node;
+import nl.agiletech.flow.project.types.NodeId;
 import nl.agiletech.flow.project.types.Platform;
 import nl.agiletech.flow.project.types.Role;
 
@@ -17,10 +19,7 @@ import nl.agiletech.flow.project.types.Role;
 @Flow
 public class WebserverNode extends Node {
 	public Platform platform = new OsxPlatform();
-
-	public WebserverNode() {
-		super(new String[] { "webserver1.local", "webserver2.local" });
-	}
-
+	public Identity identity0 = NodeId.get("webserver1.local");
+	public Identity identity1 = NodeId.get("webserver2.local");
 	public Role applicationServerRole = new ApplicationServerRole();
 }

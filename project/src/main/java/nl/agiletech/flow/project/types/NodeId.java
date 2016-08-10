@@ -1,7 +1,7 @@
 /*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.project.types;
 
-public class NodeId {
+public class NodeId implements Identity {
 	private static final String SEPARATOR = ":";
 	private static final String ANY_NETWORK_NAME_MASK = "*";
 	private static final String UNKNOWN_HOSTNAME = "";
@@ -25,6 +25,10 @@ public class NodeId {
 		}
 		String hostName = values[1];
 		return new NodeId(false, networkName, hostName);
+	}
+
+	public static final NodeId get(String hostName) {
+		return get(null, hostName);
 	}
 
 	public static final NodeId get(String networkName, String hostName) {
@@ -52,6 +56,10 @@ public class NodeId {
 
 	public String getHostName() {
 		return hostName;
+	}
+
+	public boolean matches(NodeId nodeId) {
+		return nodeId.equals(this);
 	}
 
 	@Override

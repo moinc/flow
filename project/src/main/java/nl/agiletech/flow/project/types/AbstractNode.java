@@ -1,9 +1,6 @@
 /*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.project.types;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import nl.agiletech.flow.project.inspect.AssetInspector;
 import nl.agiletech.flow.project.inspect.BiosInspector;
 import nl.agiletech.flow.project.inspect.DhcpInspector;
@@ -30,9 +27,6 @@ import nl.agiletech.flow.project.inspect.TimezoneInspector;
 import nl.agiletech.flow.project.inspect.VirtualMachineInspector;
 
 abstract class AbstractNode extends Task implements TakesContext {
-	final List<String> hostNames = new ArrayList<>();
-	final List<String> roles = new ArrayList<>();
-
 	// begin inspectors
 	// TODO: make these abstract so subclass can override?
 	public PackageVersionInspector inspectorVersion = new PackageVersionInspector("agiletech-flow-bot");
@@ -61,30 +55,12 @@ abstract class AbstractNode extends Task implements TakesContext {
 	public DhcpInspector dhcp = new DhcpInspector();
 	// end inspectors
 
-	public AbstractNode(String hostName) {
-		this(new String[] { hostName });
-	}
-
-	public AbstractNode(String[] hostNames) {
+	public AbstractNode() {
 		super(false);
-		assert hostNames != null && hostNames.length != 0;
-		for (String hostName : hostNames) {
-			this.hostNames.add(hostName);
-		}
 	}
 
 	@Override
 	public String getVersion() {
 		return "default";
-	}
-
-	public boolean matches(NodeId nodeId) {
-		for (String hostName : hostNames) {
-			NodeId registeredNodeId = NodeId.parse(hostName);
-			if (nodeId.equals(registeredNodeId)) {
-				return true;
-			}
-		}
-		return false;
 	}
 }

@@ -5,14 +5,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 public abstract class Node extends AbstractNode {
-	public Node(String hostName) {
-		super(hostName);
-	}
-
-	public Node(String[] hostNames) {
-		super(hostNames);
-	}
-
 	@Override
 	public void initialize(Context context) throws Exception {
 	}

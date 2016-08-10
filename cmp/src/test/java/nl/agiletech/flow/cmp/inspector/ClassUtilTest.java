@@ -22,6 +22,7 @@ import nl.agiletech.flow.project.types.ConfigurationSettings;
 import nl.agiletech.flow.project.types.Context;
 import nl.agiletech.flow.project.types.ContextValidator;
 import nl.agiletech.flow.project.types.Node;
+import nl.agiletech.flow.project.types.NodeId;
 import nl.agiletech.flow.project.types.Platform;
 import nl.agiletech.flow.project.types.RequestType;
 
@@ -64,30 +65,22 @@ public class ClassUtilTest {
 
 	@Flow
 	public static class SomeAnnotatedType3 extends Node {
-		public SomeAnnotatedType3() {
-			super("a");
-		}
+		public NodeId identity = NodeId.get("a");
 	}
 
 	@Flow
 	public static class SomeAnnotatedType4 extends Node {
-		public SomeAnnotatedType4() {
-			super("a");
-		}
+		public NodeId identity = NodeId.get("a");
 	}
 
 	@Flow
 	public static class SomeAnnotatedType5 extends Node {
-		public SomeAnnotatedType5() {
-			super("a");
-		}
+		public NodeId identity = NodeId.get("a");
 	}
 
 	@Flow
 	public static class SomeAnnotatedType6 extends Node {
-		public SomeAnnotatedType6() {
-			super("a");
-		}
+		public NodeId identity = NodeId.get("a");
 	}
 
 	public static class TestClassWithFields {
