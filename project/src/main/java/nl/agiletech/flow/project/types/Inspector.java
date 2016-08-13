@@ -11,12 +11,11 @@ public abstract class Inspector<O> extends AbstractInspector<O> {
 
 	@Override
 	public void inspect(Context context, Catalog catalog) throws Exception {
-		catalog.add(Instruction.createInstance(getClass(), getScriptResourceName(), "inspector",
-				Instruction.TYPE.INLINE_SHELL, readScript()));
 		// catalog.add(Instruction.createInstance(getClass(),
 		// getScriptResourceName(), "inspector",
-		// Instruction.TYPE.RESOURCE_SHELL,
-		// getPlatformDependentScriptResourceName()));
+		// Instruction.TYPE.INLINE_SHELL, readScript()));
+		catalog.addTask(Instruction.createInstance(getClass(), getScriptResourceName(), "inspector",
+				Instruction.TYPE.RESOURCE_SHELL, getScriptResourceName()));
 	}
 
 	@Override

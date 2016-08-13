@@ -8,9 +8,9 @@ import java.util.logging.Logger;
 
 import nl.agiletech.flow.cmp.jarinspector.ClassUtil;
 import nl.agiletech.flow.common.template.TemplateRenderException;
+import nl.agiletech.flow.project.types.Context;
 import nl.agiletech.flow.project.types.NodeId;
 import nl.agiletech.flow.project.types.NodeIdentifier;
-import nl.agiletech.flow.project.types.Context;
 
 public class DefaultNodeIdentifier implements NodeIdentifier {
 	private static final Logger LOG = Logger.getLogger(DefaultNodeIdentifier.class.getName());
@@ -57,9 +57,9 @@ public class DefaultNodeIdentifier implements NodeIdentifier {
 	private void performHostNameIdentification(Context context, List<NodeId> identities)
 			throws IOException, TemplateRenderException, NodeIdentificationException {
 		LOG.fine("attempt to identify node using default node identifier");
-		Object networkName = context.getNodeData().get("networkName", "");
-		Object hostName = context.getNodeData().get("hostName", "");
-		NodeId nodeId = NodeId.get((String) networkName, (String) hostName);
+		String domain = (String) context.getNodeData().get("network.domain", "");
+		String fqdn = (String) context.getNodeData().get("network.fqdn", "");
+		NodeId nodeId = NodeId.get(domain, fqdn);
 		if (nodeId == null || nodeId.isUnknown()) {
 			throw new NodeIdentificationException("failed to identify node using NodeData");
 		}

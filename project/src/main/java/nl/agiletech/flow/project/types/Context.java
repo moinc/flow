@@ -36,8 +36,7 @@ public class Context implements ProvidesContext {
 
 	public static Context createInstance(ContextValidator contextValidator, ConfigurationSettings configurationSettings,
 			RequestType requestType) throws Exception {
-		return new Context(contextValidator, configurationSettings, UUID.randomUUID(), requestType,
-				NodeData.createInstance());
+		return new Context(contextValidator, configurationSettings, UUID.randomUUID(), requestType, NodeData.EMPTY);
 	}
 
 	public static Context createInstance(ContextValidator contextValidator, ConfigurationSettings configurationSettings,
@@ -47,7 +46,7 @@ public class Context implements ProvidesContext {
 
 	public static Context reviveInstance(ContextValidator contextValidator, ConfigurationSettings configurationSettings,
 			UUID sessionId, RequestType requestType) throws Exception {
-		return new Context(contextValidator, configurationSettings, sessionId, requestType, NodeData.createInstance());
+		return new Context(contextValidator, configurationSettings, sessionId, requestType, NodeData.EMPTY);
 	}
 
 	private Context(ContextValidator contextValidator, ConfigurationSettings configurationSettings, UUID sessionId,

@@ -141,7 +141,7 @@ public class ClassUtilTest {
 	}
 
 	private Context createContext() throws Exception {
-		ConfigurationSettings configurationSettings = ConfigurationSettings.createInstance();
+		ConfigurationSettings configurationSettings = ConfigurationSettings.EMPTY;
 		ProjectConfiguration projectConfiguration = new ProjectConfiguration();
 		ContextValidator contextValidator = new DefaultContextValidator(projectConfiguration);
 		return Context.createInstance(contextValidator, configurationSettings, RequestType.INSPECT);

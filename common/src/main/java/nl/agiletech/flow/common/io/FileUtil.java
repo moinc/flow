@@ -2,6 +2,7 @@
 package nl.agiletech.flow.common.io;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,5 +41,34 @@ public final class FileUtil {
 			IOUtils.copy(inputStream, writer, charset.name());
 			return writer.toString();
 		}
+	}
+
+	public static File findFile(File directory, final String name, final String fileType) {
+		FileFilter filter = new FileFilter() {
+			@Override
+			public boolean accept(File f) {
+				return (f.isFile() && getFileNameWithoutExt(f).equalsIgnoreCase(name) && getExt(f).equals(fileType));
+			}
+
+			private String getFileNameWithoutExt(File f) {
+				if (f.isFile()) {
+					String fn = f.getName();
+					int i = fn.lastIndexOf(".");
+					return i == -1 ? fn : fn.substring(0, i);
+				}
+				return "";
+			}
+
+			private String getExt(File f) {
+				if (f.isFile()) {
+					String fn = f.getName();
+					String[] x = fn.split("\\.");
+					return x[x.length - 1];
+				}
+				return "";
+			}
+		};
+		File[] files = directory.listFiles(filter);
+		return files.length == 0 ? null : files[0];
 	}
 }

@@ -1,0 +1,11 @@
+{
+	"resources" : {
+		"fileRoot" : "/tmp/flow/files"
+	},
+	"templates" : {
+		"engine" : null
+	},
+	"projects" : {
+		"projectRoot" : "/tmp/flow/projects"
+	}
+}

@@ -63,16 +63,11 @@ public class ProjectExecutor {
 		}
 	}
 
-	private void executeRequest(Context context, RequestHandlerFactory requestHandlerFactory, Response response) throws Exception {
+	private void executeRequest(Context context, RequestHandlerFactory requestHandlerFactory, Response response)
+			throws Exception {
 		LOG.info("--- execute ---");
 		RequestHandler requestHandler = requestHandlerFactory.create();
-		// try {
 		requestHandler.handle(context, response);
-		// } catch (Exception e) {
-		// LOG.severe("request handler " + requestHandler + " threw an error: "
-		// + e.getMessage());
-		// throw e;
-		// }
 	}
 
 	private void terminate(Context context) {

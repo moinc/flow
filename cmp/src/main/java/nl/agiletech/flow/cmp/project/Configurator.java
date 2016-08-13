@@ -10,7 +10,6 @@ import nl.agiletech.flow.cmp.jarinspector.ClassUtil;
 import nl.agiletech.flow.cmp.jarinspector.ObjectDiscoveryOptions;
 import nl.agiletech.flow.common.util.StringUtil;
 import nl.agiletech.flow.project.types.ConfigurationProvider;
-import nl.agiletech.flow.project.types.KeyPair;
 import nl.agiletech.flow.project.types.Context;
 
 public class Configurator {
@@ -35,10 +34,11 @@ public class Configurator {
 		Map<String, Object> configuration = new HashMap<>();
 
 		LOG.info("  NodeData:");
-		for (KeyPair keyPair : context.getNodeData().getEntries()) {
-			String concatenatedName = StringUtil.join(new Object[] { "nodedata", keyPair.getKey() }, ".");
-			configuration.put(concatenatedName, keyPair.getValue());
-			LOG.info("    [" + concatenatedName + " = " + keyPair.getValue() + "]");
+		for (String key : context.getNodeData().getValues().keySet()) {
+			String concatenatedName = StringUtil.join(new Object[] { "nodedata", key }, ".");
+			Object value = context.getNodeData().getValues().get(key);
+			configuration.put(concatenatedName, value);
+			LOG.info("    [" + concatenatedName + " = " + value + "]");
 		}
 
 		for (ConfigurationProvider configurationProvider : context.getConfigurationProviders()) {

@@ -19,7 +19,6 @@ import nl.agiletech.flow.project.types.Role;
 @Flow
 public class WebserverNode extends Node {
 	public Platform platform = new OsxPlatform();
-	public Identity identity0 = NodeId.get("webserver1.local");
-	public Identity identity1 = NodeId.get("webserver2.local");
+	public Identity[] identity0 = NodeId.array("webserver1.local", "webserver2.local");
 	public Role applicationServerRole = new ApplicationServerRole();
 }

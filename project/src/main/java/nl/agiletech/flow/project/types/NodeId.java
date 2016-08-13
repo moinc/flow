@@ -1,6 +1,9 @@
 /*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.project.types;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NodeId implements Identity {
 	private static final String SEPARATOR = ":";
 	private static final String ANY_NETWORK_NAME_MASK = "*";
@@ -31,6 +34,24 @@ public class NodeId implements Identity {
 		return get(null, hostName);
 	}
 
+	public static final NodeId[] array(String... hostNames) {
+		assert hostNames != null && hostNames.length != 0;
+		List<NodeId> nodeIds = new ArrayList<>();
+		for (String hostName : hostNames) {
+			nodeIds.add(get(null, hostName));
+		}
+		return nodeIds.toArray(new NodeId[0]);
+	}
+
+	public static final List<NodeId> list(String... hostNames) {
+		assert hostNames != null && hostNames.length != 0;
+		List<NodeId> nodeIds = new ArrayList<>();
+		for (String hostName : hostNames) {
+			nodeIds.add(get(null, hostName));
+		}
+		return nodeIds;
+	}
+
 	public static final NodeId get(String networkName, String hostName) {
 		if (networkName == null || networkName.isEmpty()) {
 			networkName = ANY_NETWORK_NAME_MASK;
@@ -59,7 +80,7 @@ public class NodeId implements Identity {
 	}
 
 	public boolean matches(NodeId nodeId) {
-		return nodeId.equals(this);
+		return equals(nodeId);
 	}
 
 	@Override

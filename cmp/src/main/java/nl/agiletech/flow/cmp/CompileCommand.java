@@ -118,6 +118,9 @@ public class CompileCommand implements CommandInfo, CommandExecutor {
 			FileUtil.copy(temp, System.out);
 			LOG.info("\n--- done ---");
 
+			// delete the temp file
+			temp.delete();
+
 		} catch (CompileException e) {
 			throw new CliException(e);
 		} catch (IOException e) {

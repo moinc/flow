@@ -1,9 +1,11 @@
 {
-	"settings" : [
-		{"key" : "fileRoot", "value" : "/tmp/flow/files"}
-	],
-	"supportedPlatforms" : [
-		{"key" : "Darwin", "value" : "nl.agiletech.flow.osx"},
-		{"key" : "Debian", "value" : "nl.agiletech.flow.debian"}
-	]
+	"resources" : {
+		"fileRoot" : "/tmp/flow/files"
+	},
+	"templates" : {
+		"engine" : null
+	},
+	"projects" : {
+		"projectRoot" : "../build/1.0/StarterProject/libs"
+	}
 }

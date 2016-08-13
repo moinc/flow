@@ -21,5 +21,4 @@ public class AssetInspector extends Inspector<Map<String, Object>> {
 		String key = getScriptResourceName();
 		return (Map<String, Object>) context.getNodeData().get(key, new HashMap<String, Object>());
 	}
-
 }
