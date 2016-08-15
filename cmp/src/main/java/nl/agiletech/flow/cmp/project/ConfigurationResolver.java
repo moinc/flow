@@ -23,8 +23,9 @@ public class ConfigurationResolver implements ConfigurationMapper {
 
 	@Override
 	public void mapConfigurations(Context context) {
+		LOG.info("custom configuration mappers:");
 		for (Class<? extends ConfigurationMapper> clazz : projectConfiguration.getConfigurationMapperClasses()) {
-			LOG.info("+configuration-mapper: " + clazz.getName());
+			LOG.info("  +" + clazz.getName());
 			ConfigurationMapper configurationMapper = ClassUtil.createInstance(clazz, context);
 			configurationMapper.mapConfigurations(context);
 		}

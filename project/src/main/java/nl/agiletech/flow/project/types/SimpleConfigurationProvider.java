@@ -14,4 +14,9 @@ public class SimpleConfigurationProvider implements ConfigurationProvider {
 		return obj;
 	}
 
+	@Override
+	public String toString() {
+		String objName = obj != null ? obj.toString() : "<null>";
+		return super.toString() + "--->" + objName;
+	}
 }

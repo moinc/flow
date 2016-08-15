@@ -6,15 +6,16 @@ import java.util.logging.Logger;
 
 import nl.agiletech.flow.project.types.Context;
 import nl.agiletech.flow.project.types.Filter;
+import nl.agiletech.flow.project.types.Switchable;
 import nl.agiletech.flow.project.types.Task;
 
 public class ProjectExecutor {
 	private static final Logger LOG = Logger.getLogger(ProjectExecutor.class.getName());
 
-	final Filter<Object> taskFilter = new Filter<Object>() {
+	public static final Filter<Object> ENABLED_TASK_FILTER = new Filter<Object>() {
 		@Override
 		public boolean include(Object value) {
-			return value instanceof Task;
+			return (value instanceof Task) && Switchable.isEnabled(value);
 		}
 	};
 
@@ -48,14 +49,14 @@ public class ProjectExecutor {
 	}
 
 	private void initialize(Context context) {
-		LOG.info("--- initialize ---");
-		for (Object obj : context.getDependencies(taskFilter)) {
+		LOG.fine("--- initialize ---");
+		for (Object obj : context.getDependencies(ENABLED_TASK_FILTER)) {
 			initialize((Task) obj, context);
 		}
 	}
 
 	private void initialize(Task task, Context context) {
-		LOG.info("initialize task: " + task);
+		LOG.fine("initialize task: " + task);
 		try {
 			task.initialize(context);
 		} catch (Exception e) {
@@ -71,14 +72,14 @@ public class ProjectExecutor {
 	}
 
 	private void terminate(Context context) {
-		LOG.info("--- terminate ---");
-		for (Object obj : context.getDependencies(taskFilter)) {
+		LOG.fine("--- terminate ---");
+		for (Object obj : context.getDependencies(ENABLED_TASK_FILTER)) {
 			terminate((Task) obj, context);
 		}
 	}
 
 	private void terminate(Task task, Context context) {
-		LOG.info("terminate task: " + task);
+		LOG.fine("terminate task: " + task);
 		try {
 			task.terminate(context);
 		} catch (Exception e) {

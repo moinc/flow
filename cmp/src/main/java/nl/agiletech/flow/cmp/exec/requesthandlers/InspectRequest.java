@@ -3,11 +3,11 @@ package nl.agiletech.flow.cmp.exec.requesthandlers;
 
 import java.util.logging.Logger;
 
+import nl.agiletech.flow.cmp.exec.ProjectExecutor;
 import nl.agiletech.flow.cmp.exec.RequestHandler;
 import nl.agiletech.flow.cmp.exec.Response;
 import nl.agiletech.flow.project.types.Catalog;
 import nl.agiletech.flow.project.types.Context;
-import nl.agiletech.flow.project.types.Filter;
 import nl.agiletech.flow.project.types.Task;
 
 /**
@@ -24,17 +24,10 @@ import nl.agiletech.flow.project.types.Task;
 public class InspectRequest implements RequestHandler {
 	private static final Logger LOG = Logger.getLogger(InspectRequest.class.getName());
 
-	final Filter<Object> taskFilter = new Filter<Object>() {
-		@Override
-		public boolean include(Object value) {
-			return value instanceof Task;
-		}
-	};
-
 	@Override
 	public void handle(Context context, Response response) throws Exception {
 		Catalog catalog = new Catalog();
-		for (Object obj : context.getDependencies(taskFilter)) {
+		for (Object obj : context.getDependencies(ProjectExecutor.ENABLED_TASK_FILTER)) {
 			Task task = (Task) obj;
 			LOG.info("inspect: " + task);
 			task.inspect(context, catalog);

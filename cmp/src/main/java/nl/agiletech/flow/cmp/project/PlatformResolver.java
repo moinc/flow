@@ -25,6 +25,7 @@ public class PlatformResolver {
 	}
 
 	public void resolve() {
+		LOG.info("resolving platform:");
 		Node node = context.getNode();
 		if (node == null) {
 			LOG.warning("failed to resolve platform: node not set");
@@ -40,6 +41,7 @@ public class PlatformResolver {
 			if (obj instanceof Platform) {
 				Platform platform = (Platform) obj;
 				context.setPlatform(platform);
+				LOG.info("  +" + platform);
 				break;
 			}
 		}

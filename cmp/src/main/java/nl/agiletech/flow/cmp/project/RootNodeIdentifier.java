@@ -12,29 +12,30 @@ import nl.agiletech.flow.project.types.Context;
 import nl.agiletech.flow.project.types.NodeId;
 import nl.agiletech.flow.project.types.NodeIdentifier;
 
-public class DefaultNodeIdentifier implements NodeIdentifier {
-	private static final Logger LOG = Logger.getLogger(DefaultNodeIdentifier.class.getName());
+public class RootNodeIdentifier implements NodeIdentifier {
+	private static final Logger LOG = Logger.getLogger(RootNodeIdentifier.class.getName());
 
 	final ProjectConfiguration projectConfiguration;
 
 	public static NodeIdentifier createInstance(ProjectConfiguration projectConfiguration) {
-		return new DefaultNodeIdentifier(projectConfiguration);
+		return new RootNodeIdentifier(projectConfiguration);
 	}
 
-	private DefaultNodeIdentifier(ProjectConfiguration fpc) {
+	private RootNodeIdentifier(ProjectConfiguration fpc) {
 		this.projectConfiguration = fpc;
 	}
 
 	@Override
 	public NodeId identify(Context context) throws Exception {
 		assert context != null;
-		LOG.fine("identifying node");
+		LOG.info("identifying node:");
 		List<NodeId> identities = new ArrayList<>();
 		if (!attemptToIdentifyUsingCustomIdentifier(context, identities)) {
 			performHostNameIdentification(context, identities);
 		}
 		NodeId found = identities.size() != 0 ? identities.get(0) : NodeId.UNKNOWN;
 		context.setNodeId(found);
+		LOG.info("  +" + found);
 		return found;
 	}
 

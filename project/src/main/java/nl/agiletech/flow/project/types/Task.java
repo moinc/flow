@@ -8,12 +8,19 @@ import java.util.List;
 
 import nl.agiletech.flow.common.reflect.ClassUtil;
 
-public abstract class Task implements TakesContext {
+/**
+ * Task is the base class for all classes that express something that 'needs to
+ * be done'.
+ * 
+ * @author moincreemers
+ *
+ */
+public abstract class Task implements TakesContext, TakesCondition, HasAttributes {
 	protected Context context;
 	private final boolean repeatable;
-	private final List<Condition> preConditions = new ArrayList<>();
-	private final List<Condition> postConditions = new ArrayList<>();
 	private final List<Dependency> dependencies = new ArrayList<>();
+	private Condition condition = Condition.TRUE;
+	private final Attributes attributes = new Attributes();
 
 	public Task(boolean repeatable) {
 		this.repeatable = repeatable;
@@ -23,6 +30,26 @@ public abstract class Task implements TakesContext {
 	public void setContext(Context context) {
 		assert context != null;
 		this.context = context;
+		this.condition.setContext(context);
+	}
+
+	@Override
+	public void setCondition(Condition condition) {
+		assert condition != null;
+		this.condition = condition;
+		if (context != null) {
+			this.condition.setContext(context);
+		}
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return condition.eval();
+	}
+
+	@Override
+	public Attributes getAttributes() {
+		return attributes;
 	}
 
 	public String getClassName() {
@@ -52,20 +79,6 @@ public abstract class Task implements TakesContext {
 	 */
 	public final boolean isRepeatable() {
 		return repeatable;
-	}
-
-	protected void addPreCondition(Condition... conditions) {
-		assert conditions != null;
-		for (Condition condition : conditions) {
-			preConditions.add(condition);
-		}
-	}
-
-	protected void addPostCondition(Condition... conditions) {
-		assert conditions != null;
-		for (Condition condition : conditions) {
-			postConditions.add(condition);
-		}
 	}
 
 	protected void addDependency(Dependency... dependencies) {

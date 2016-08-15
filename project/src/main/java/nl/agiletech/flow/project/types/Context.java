@@ -157,7 +157,6 @@ public class Context implements ProvidesContext {
 	public void addConfigurationProvider(ConfigurationProvider... providers) {
 		assert providers != null;
 		for (ConfigurationProvider provider : providers) {
-			LOG.info("+configuration-provider: " + provider);
 			applyTo(provider);
 			configurationProviders.add(provider);
 		}

@@ -17,6 +17,7 @@ import nl.agiletech.flow.project.types.CustomFile;
 import nl.agiletech.flow.project.types.File;
 import nl.agiletech.flow.project.types.Inspector;
 import nl.agiletech.flow.project.types.Node;
+import nl.agiletech.flow.project.types.Switchable;
 import nl.agiletech.flow.project.types.Template;
 
 public class DependencyResolver {
@@ -37,7 +38,7 @@ public class DependencyResolver {
 	}
 
 	public List<Object> resolve() throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		LOG.fine("resolving dependencies");
+		LOG.info("resolving dependencies:");
 		Node node = context.getNode();
 		List<Object> resolvedObjects = new ArrayList<>();
 		Map<String, Class<?>> index = new HashMap<>();
@@ -49,13 +50,22 @@ public class DependencyResolver {
 	private void resolve(Class<?> declaredIn, Object obj, List<Object> resolvedObjects, Map<String, Class<?>> index)
 			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		assert declaredIn != null && obj != null && resolvedObjects != null && index != null;
-		Map<String, Object> dependencies = ClassUtil.discoverObjects(obj, context, options);
 		ProjectClassType projectClassType = ProjectClassUtil.getProjectClassType(obj.getClass());
+		if (projectClassType == ProjectClassType.UNDEFINED) {
+			return;
+		}
+		Map<String, Object> dependencies = ClassUtil.discoverObjects(obj, context, options);
 		String objName = getDependencyName(obj);
 		index.put(objName, declaredIn);
 		for (Object dependency : dependencies.values()) {
 			// determine the name of the dependency
 			String dependencyName = getDependencyName(dependency);
+			if (!Switchable.isEnabled(dependency)) {
+				ProjectClassType dependencyProjectClassType = ProjectClassUtil
+						.getProjectClassType(dependency.getClass());
+				LOG.info("  -dependency: " + dependencyName + " (" + dependencyProjectClassType + ") <-- disabled ");
+				continue;
+			}
 			if (!index.containsKey(dependencyName)) {
 				resolve(obj.getClass(), dependency, resolvedObjects, index);
 			} else {
@@ -67,7 +77,7 @@ public class DependencyResolver {
 		}
 		resolvedObjects.add(obj);
 		dependencyObserver.observe(obj, declaredIn);
-		LOG.info("+dependency: " + objName + " (" + projectClassType + ")");
+		LOG.info("  +dependency: " + objName + " (" + projectClassType + ")");
 	}
 
 	private String getDependencyName(Object obj) {

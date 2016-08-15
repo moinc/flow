@@ -7,7 +7,6 @@ import nl.agiletech.flow.project.types.Context;
 import nl.agiletech.flow.project.types.TakesContext;
 
 public class DefaultConfigurationProvider implements ConfigurationProvider, TakesContext {
-
 	final Class<?> configurationClass;
 	protected Context context;
 
@@ -25,4 +24,10 @@ public class DefaultConfigurationProvider implements ConfigurationProvider, Take
 	public void setContext(Context context) {
 		this.context = context;
 	}
+
+	@Override
+	public String toString() {
+		return super.toString() + "-->" + configurationClass.getSimpleName();
+	}
+
 }

@@ -22,10 +22,11 @@ public class GlobalConfigurationMapper implements ConfigurationMapper {
 
 	@Override
 	public void mapConfigurations(Context context) {
+		LOG.info("global configuration classes:");
 		for (Class<?> clazz : projectConfiguration.getConfigurationClasses()) {
 			ConfigurationProvider configurationProvider = new DefaultConfigurationProvider(clazz);
 			context.addConfigurationProvider(configurationProvider);
-			LOG.info("+global config: " + clazz);
+			LOG.info("  +" + clazz);
 		}
 	}
 }

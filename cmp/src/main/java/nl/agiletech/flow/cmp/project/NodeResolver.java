@@ -41,7 +41,7 @@ public class NodeResolver {
 	public Node resolve(Context context)
 			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		assert context.getNodeId() != null;
-		LOG.fine("resolving node class");
+		LOG.info("resolving node class:");
 		for (Class<? extends Node> clazz : projectConfiguration.getNodeClasses()) {
 			Node node = ClassUtil.createInstance(clazz, context);
 			ObjectDiscoveryOptions options = ObjectDiscoveryOptions.createInstanceForDependencyDiscovery()
@@ -51,7 +51,7 @@ public class NodeResolver {
 				if (obj instanceof Identity) {
 					Identity identity = (Identity) obj;
 					if (identity.matches(context.getNodeId())) {
-						LOG.info("+node: " + node);
+						LOG.info("  +node: " + node);
 						context.setNode(node);
 						return node;
 					}

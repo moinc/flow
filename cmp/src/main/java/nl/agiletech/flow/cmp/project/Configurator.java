@@ -1,14 +1,20 @@
 /*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.cmp.project;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import nl.agiletech.flow.cmp.jarinspector.ClassUtil;
 import nl.agiletech.flow.cmp.jarinspector.ObjectDiscoveryOptions;
-import nl.agiletech.flow.common.util.StringUtil;
+import nl.agiletech.flow.common.collections.CollectionUtil;
+import nl.agiletech.flow.common.util.HashUtil;
 import nl.agiletech.flow.project.types.ConfigurationProvider;
 import nl.agiletech.flow.project.types.Context;
 
@@ -28,24 +34,33 @@ public class Configurator {
 		this.projectConfiguration = projectConfiguration;
 	}
 
-	public Map<String, Object> configure()
-			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		LOG.info("configuring dataset");
-		Map<String, Object> configuration = new HashMap<>();
+	public Map<String, Object> configure() throws IllegalArgumentException, IllegalAccessException,
+			InvocationTargetException, NoSuchAlgorithmException, IOException {
+		LOG.info("configuring data dictionary:");
+		String hash = HashUtil.digest((Serializable) context.getConfiguration());
 
-		LOG.info("  NodeData:");
-		for (String key : context.getNodeData().getValues().keySet()) {
-			String concatenatedName = StringUtil.join(new Object[] { "nodedata", key }, ".");
-			Object value = context.getNodeData().getValues().get(key);
-			configuration.put(concatenatedName, value);
-			LOG.info("    [" + concatenatedName + " = " + value + "]");
-		}
+		Map<String, Object> configuration = new LinkedHashMap<>();
+		CollectionUtil.flatten(context.getNodeData().getValues(), configuration);
+
+		// update context now to allow other configuration objects to use that
+		// information
+		context.setConfiguration(configuration);
 
 		for (ConfigurationProvider configurationProvider : context.getConfigurationProviders()) {
 			interrogateConfigurationProvider(configurationProvider, configuration);
 		}
 
+		// update context again to include the additional data
 		context.setConfiguration(configuration);
+
+		String hash2 = HashUtil.digest((Serializable) context.getConfiguration());
+
+		if (hash.equals(hash2)) {
+			LOG.info("  (no changes in configuration)");
+		} else {
+			printToLog(configuration);
+			LOG.info("  hash: " + hash);
+		}
 
 		return configuration;
 	}
@@ -53,12 +68,45 @@ public class Configurator {
 	private void interrogateConfigurationProvider(ConfigurationProvider configurationProvider,
 			Map<String, Object> configuration) throws IllegalAccessException, InvocationTargetException {
 		Object obj = configurationProvider.provideConfiguration();
-		LOG.info("  " + obj + ":");
 		Map<String, Object> objects = ClassUtil.discoverObjects(obj, context, options);
-		for (String key : objects.keySet()) {
-			Object val = objects.get(key);
-			LOG.info("    [" + key + " = " + objects.get(key) + "]");
-			configuration.put(key, val);
+		CollectionUtil.flatten(objects, configuration);
+	}
+
+	private void printToLog(Map<String, Object> configuration) {
+		for (String key : configuration.keySet()) {
+			printToLog(key, configuration.get(key));
 		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	private void printToLog(String key, Object value) {
+		Object v = value;
+		if (v == null) {
+			LOG.info("  +" + key + " = <null>]");
+			return;
+		} else if (v.getClass().isArray()) {
+			v = Arrays.asList((Object[]) v);
+		}
+		if (v instanceof Collection) {
+			int i = 0;
+			for (Object w : (Collection) v) {
+				String key2 = key + "[" + i + "]";
+				printToLog(key2, w);
+				i++;
+			}
+			return;
+		}
+		if (v instanceof Map) {
+			Map map = (Map) v;
+			for (Object k : map.keySet()) {
+				String key2 = key + "." + k;
+				printToLog(key2, map.get(k));
+			}
+			return;
+		}
+		if (value instanceof String && ((String) value).isEmpty()) {
+			v = "<empty>";
+		}
+		LOG.info("  +" + key + " = " + v.toString());
 	}
 }

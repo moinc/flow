@@ -3,6 +3,7 @@ package nl.agiletech.flow.cmp.compiler.builtin;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
 
 import nl.agiletech.flow.cmp.compiler.CompileException;
@@ -11,7 +12,7 @@ import nl.agiletech.flow.cmp.jarinspector.InspectorLoadException;
 import nl.agiletech.flow.cmp.jarinspector.JarInspector;
 import nl.agiletech.flow.cmp.project.ConfigurationResolver;
 import nl.agiletech.flow.cmp.project.Configurator;
-import nl.agiletech.flow.cmp.project.DefaultNodeIdentifier;
+import nl.agiletech.flow.cmp.project.RootNodeIdentifier;
 import nl.agiletech.flow.cmp.project.DependencyResolver;
 import nl.agiletech.flow.cmp.project.GlobalConfigurationMapper;
 import nl.agiletech.flow.cmp.project.NodeResolver;
@@ -68,7 +69,7 @@ public class DefaultCompiler implements Compiler {
 			// identify the node
 			NodeId nodeId;
 			try {
-				nodeId = DefaultNodeIdentifier.createInstance(projectConfiguration).identify(context);
+				nodeId = RootNodeIdentifier.createInstance(projectConfiguration).identify(context);
 			} catch (Exception e) {
 				throw new CompileException("failed to identify node", e);
 			}
@@ -106,6 +107,8 @@ public class DefaultCompiler implements Compiler {
 		} catch (InspectorLoadException e) {
 			throw new CompileException(e);
 		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+			throw new CompileException(e);
+		} catch (NoSuchAlgorithmException e) {
 			throw new CompileException(e);
 		}
 	}

@@ -8,10 +8,14 @@ import java.util.logging.Logger;
 
 import nl.agiletech.flow.common.io.FileUtil;
 import nl.agiletech.flow.common.io.MD5CheckSum;
+import nl.agiletech.flow.project.aspects.OwnershipAspect;
+import nl.agiletech.flow.project.aspects.PermissionsAspect;
 
 abstract class AbstractFile extends Task {
 	private static final Logger LOG = Logger.getLogger(AbstractFile.class.getName());
 	private static final String DEFAULT_VERSION = "default";
+	public final OwnershipAspect ownership = OwnershipAspect.OPTIONAL;
+	public final PermissionsAspect permissions = PermissionsAspect.OPTIONAL;
 
 	public AbstractFile() {
 		super(false);
@@ -33,9 +37,8 @@ abstract class AbstractFile extends Task {
 		}
 		StringBuffer sb = new StringBuffer();
 		sb.append(getDestination());
-		sb.append(getOwner());
-		sb.append(getGroup());
-		sb.append(getMode());
+		sb.append(ownership.toString());
+		sb.append(permissions.toString());
 		byte[] additionalBytes = sb.toString().getBytes(Charset.forName("utf-8"));
 		LOG.fine("  additional bytes: " + additionalBytes.length);
 		try {
@@ -67,27 +70,6 @@ abstract class AbstractFile extends Task {
 	 * @return a path
 	 */
 	public abstract String getDestination();
-
-	/**
-	 * The owner of the file.
-	 * 
-	 * @return name of the owner
-	 */
-	public abstract String getOwner();
-
-	/**
-	 * The group of the file.
-	 * 
-	 * @return name of the group
-	 */
-	public abstract String getGroup();
-
-	/**
-	 * The mode of the file.
-	 * 
-	 * @return a file mode
-	 */
-	public abstract String getMode();
 
 	/**
 	 * Returns a dependency to this file.

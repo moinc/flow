@@ -8,11 +8,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public class Template implements TakesContext, ValueTransform<String> {
+public class Template implements TakesContext, ValueTransform<String>, Serializable {
+	private static final long serialVersionUID = -4230894039749439108L;
+
 	interface TemplateSource {
 		Reader getReader() throws IOException;
 	}
@@ -108,8 +111,8 @@ public class Template implements TakesContext, ValueTransform<String> {
 		return new Template(src, charset);
 	}
 
-	Context context;
-	final TemplateSource src;
+	transient Context context;
+	transient final TemplateSource src;
 
 	private Template(String src) {
 		this.src = new InlineTemplateSource(src);
@@ -156,6 +159,7 @@ public class Template implements TakesContext, ValueTransform<String> {
 		try {
 			return render();
 		} catch (IOException e) {
+			e.printStackTrace();
 			return "[template error: " + e.getMessage() + "]";
 		}
 	}
