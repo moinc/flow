@@ -48,4 +48,23 @@ public final class CollectionUtil {
 		}
 		return result;
 	}
+
+	public static Map<String, Object> diff(Map<String, Object> a, Map<String, Object> b) {
+		assert a != null && b != null;
+		Map<String, Object> result = new LinkedHashMap<>();
+		if (a.size() == 0 && b.size() == 0) {
+			return result;
+		}
+		List<String> keysA = new ArrayList<>(a.keySet());
+		keysA.removeAll(b.keySet());
+		List<String> keysB = new ArrayList<>(b.keySet());
+		keysB.removeAll(a.keySet());
+		for (String key : keysA) {
+			result.put(key, a.get(key));
+		}
+		for (String key : keysB) {
+			result.put(key, b.get(key));
+		}
+		return result;
+	}
 }

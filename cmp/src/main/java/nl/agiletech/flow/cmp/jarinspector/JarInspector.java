@@ -14,6 +14,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
+import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
+
 public class JarInspector implements Closeable {
 	private static final Logger LOG = Logger.getLogger(JarInspector.class.getName());
 
@@ -55,24 +57,26 @@ public class JarInspector implements Closeable {
 	}
 
 	public void inspect() throws InspectorLoadException {
-		LOG.info("inspecting project: " + file.getAbsolutePath());
-		if (loaded) {
-			return;
-		}
-		try {
-			loadEntries();
-			if (entries.size() == 0) {
-				throw new InspectorLoadException("specified file is empty");
+		try (ConsoleUtil log = ConsoleUtil.OUT) {
+			log.normal().append("inspecting project: " + file.getAbsolutePath()).print();
+			if (loaded) {
+				return;
 			}
-			URL url = file.toURI().toURL();
-			this.loader = URLClassLoader.newInstance(new URL[] { url }, getClass().getClassLoader());
-			inspectClasses(getClasses());
-		} catch (MalformedURLException e) {
-			throw new InspectorLoadException(e);
-		} catch (IOException e) {
-			throw new InspectorLoadException(e);
+			try {
+				loadEntries();
+				if (entries.size() == 0) {
+					throw new InspectorLoadException("specified file is empty");
+				}
+				URL url = file.toURI().toURL();
+				this.loader = URLClassLoader.newInstance(new URL[] { url }, getClass().getClassLoader());
+				inspectClasses(getClasses());
+			} catch (MalformedURLException e) {
+				throw new InspectorLoadException(e);
+			} catch (IOException e) {
+				throw new InspectorLoadException(e);
+			}
+			loaded = true;
 		}
-		loaded = true;
 	}
 
 	public List<String> getEntries(EntryType type) {

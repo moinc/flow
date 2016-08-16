@@ -4,6 +4,7 @@ package nl.agiletech.flow.cmp.exec;
 import java.io.OutputStream;
 import java.util.logging.Logger;
 
+import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
 import nl.agiletech.flow.project.types.Context;
 import nl.agiletech.flow.project.types.Filter;
 import nl.agiletech.flow.project.types.Switchable;
@@ -49,41 +50,51 @@ public class ProjectExecutor {
 	}
 
 	private void initialize(Context context) {
-		LOG.fine("--- initialize ---");
-		for (Object obj : context.getDependencies(ENABLED_TASK_FILTER)) {
-			initialize((Task) obj, context);
+		try (ConsoleUtil log = ConsoleUtil.OUT) {
+			log.faint().append("--- initialize ---").print();
+			for (Object obj : context.getDependencies(ENABLED_TASK_FILTER)) {
+				initialize((Task) obj, context);
+			}
 		}
 	}
 
 	private void initialize(Task task, Context context) {
-		LOG.fine("initialize task: " + task);
-		try {
-			task.initialize(context);
-		} catch (Exception e) {
-			LOG.severe("task " + task + " threw an error while initializing: " + e.getMessage());
+		try (ConsoleUtil log = ConsoleUtil.OUT) {
+			log.normal().append("initialize task: " + task).print();
+			try {
+				task.initialize(context);
+			} catch (Exception e) {
+				log.error().append("task " + task + " threw an error while initializing: " + e.getMessage()).print();
+			}
 		}
 	}
 
 	private void executeRequest(Context context, RequestHandlerFactory requestHandlerFactory, Response response)
 			throws Exception {
-		LOG.info("--- execute ---");
-		RequestHandler requestHandler = requestHandlerFactory.create();
-		requestHandler.handle(context, response);
+		try (ConsoleUtil log = ConsoleUtil.OUT) {
+			log.faint().append("--- execute ---").print();
+			RequestHandler requestHandler = requestHandlerFactory.create();
+			requestHandler.handle(context, response);
+		}
 	}
 
 	private void terminate(Context context) {
-		LOG.fine("--- terminate ---");
-		for (Object obj : context.getDependencies(ENABLED_TASK_FILTER)) {
-			terminate((Task) obj, context);
+		try (ConsoleUtil log = ConsoleUtil.OUT) {
+			log.faint().append("--- terminate ---").print();
+			for (Object obj : context.getDependencies(ENABLED_TASK_FILTER)) {
+				terminate((Task) obj, context);
+			}
 		}
 	}
 
 	private void terminate(Task task, Context context) {
-		LOG.fine("terminate task: " + task);
-		try {
-			task.terminate(context);
-		} catch (Exception e) {
-			LOG.severe("task " + task + " threw an error while terminating: " + e.getMessage());
+		try (ConsoleUtil log = ConsoleUtil.OUT) {
+			log.normal().append("terminate task: " + task).print();
+			try {
+				task.terminate(context);
+			} catch (Exception e) {
+				log.error().append("task " + task + " threw an error while terminating: " + e.getMessage()).print();
+			}
 		}
 	}
 }

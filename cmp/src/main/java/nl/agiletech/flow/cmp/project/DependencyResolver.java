@@ -10,6 +10,8 @@ import java.util.logging.Logger;
 
 import nl.agiletech.flow.cmp.jarinspector.ClassUtil;
 import nl.agiletech.flow.cmp.jarinspector.ObjectDiscoveryOptions;
+import nl.agiletech.flow.common.cli.logging.Color;
+import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
 import nl.agiletech.flow.project.types.Component;
 import nl.agiletech.flow.project.types.Context;
 import nl.agiletech.flow.project.types.CustomComponent;
@@ -38,46 +40,56 @@ public class DependencyResolver {
 	}
 
 	public List<Object> resolve() throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		LOG.info("resolving dependencies:");
-		Node node = context.getNode();
-		List<Object> resolvedObjects = new ArrayList<>();
-		Map<String, Class<?>> index = new HashMap<>();
-		resolve(context.getClass(), node, resolvedObjects, index);
-		context.setDependencies(resolvedObjects);
-		return resolvedObjects;
+		try (ConsoleUtil log = ConsoleUtil.OUT) {
+			log.normal().append("resolving dependencies:").print();
+			Node node = context.getNode();
+			List<Object> resolvedObjects = new ArrayList<>();
+			Map<String, Class<?>> index = new HashMap<>();
+			resolve(context.getClass(), node, resolvedObjects, index);
+			context.setDependencies(resolvedObjects);
+			return resolvedObjects;
+		}
 	}
 
 	private void resolve(Class<?> declaredIn, Object obj, List<Object> resolvedObjects, Map<String, Class<?>> index)
 			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		assert declaredIn != null && obj != null && resolvedObjects != null && index != null;
-		ProjectClassType projectClassType = ProjectClassUtil.getProjectClassType(obj.getClass());
-		if (projectClassType == ProjectClassType.UNDEFINED) {
-			return;
-		}
-		Map<String, Object> dependencies = ClassUtil.discoverObjects(obj, context, options);
-		String objName = getDependencyName(obj);
-		index.put(objName, declaredIn);
-		for (Object dependency : dependencies.values()) {
-			// determine the name of the dependency
-			String dependencyName = getDependencyName(dependency);
-			if (!Switchable.isEnabled(dependency)) {
-				ProjectClassType dependencyProjectClassType = ProjectClassUtil
-						.getProjectClassType(dependency.getClass());
-				LOG.info("  -dependency: " + dependencyName + " (" + dependencyProjectClassType + ") <-- disabled ");
-				continue;
+		try (ConsoleUtil log = ConsoleUtil.OUT) {
+			ProjectClassType projectClassType = ProjectClassUtil.getProjectClassType(obj.getClass());
+			if (projectClassType == ProjectClassType.UNDEFINED) {
+				return;
 			}
-			if (!index.containsKey(dependencyName)) {
-				resolve(obj.getClass(), dependency, resolvedObjects, index);
-			} else {
-				// circular dependency found
-				Class<?> alreadyDefinedInClass = index.get(dependencyName);
-				LOG.warning("encountered circular dependency " + dependencyName + " in " + obj.getClass()
-						+ " but was already declared in " + alreadyDefinedInClass);
+			Map<String, Object> dependencies = ClassUtil.discoverObjects(obj, context, options);
+			String objName = getDependencyName(obj);
+			index.put(objName, declaredIn);
+			for (Object dependency : dependencies.values()) {
+				// determine the name of the dependency
+				String dependencyName = getDependencyName(dependency);
+				if (!Switchable.isEnabled(dependency)) {
+					ProjectClassType dependencyProjectClassType = ProjectClassUtil
+							.getProjectClassType(dependency.getClass());
+					log.faint().append(
+							"  -dependency: " + dependencyName + " (" + dependencyProjectClassType + ") <-- disabled ")
+							.print();
+					continue;
+				}
+				if (!index.containsKey(dependencyName)) {
+					resolve(obj.getClass(), dependency, resolvedObjects, index);
+				} else {
+					// circular dependency found
+					// Class<?> alreadyDefinedInClass =
+					// index.get(dependencyName);
+					ProjectClassType dependencyProjectClassType = ProjectClassUtil
+							.getProjectClassType(dependency.getClass());
+					log.faint().append(
+							"  ~dependency: " + dependencyName + " (" + dependencyProjectClassType + ") <-- duplicate")
+							.print();
+				}
 			}
+			resolvedObjects.add(obj);
+			dependencyObserver.observe(obj, declaredIn);
+			log.normal().append("  +dependency: " + objName + " (" + projectClassType + ")").print();
 		}
-		resolvedObjects.add(obj);
-		dependencyObserver.observe(obj, declaredIn);
-		LOG.info("  +dependency: " + objName + " (" + projectClassType + ")");
 	}
 
 	private String getDependencyName(Object obj) {

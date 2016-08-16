@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 
 import nl.agiletech.flow.cmp.jarinspector.ClassUtil;
 import nl.agiletech.flow.cmp.jarinspector.ObjectDiscoveryOptions;
+import nl.agiletech.flow.common.cli.logging.Color;
+import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
 import nl.agiletech.flow.project.types.Context;
 import nl.agiletech.flow.project.types.Filter;
 import nl.agiletech.flow.project.types.Identity;
@@ -41,23 +43,25 @@ public class NodeResolver {
 	public Node resolve(Context context)
 			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		assert context.getNodeId() != null;
-		LOG.info("resolving node class:");
-		for (Class<? extends Node> clazz : projectConfiguration.getNodeClasses()) {
-			Node node = ClassUtil.createInstance(clazz, context);
-			ObjectDiscoveryOptions options = ObjectDiscoveryOptions.createInstanceForDependencyDiscovery()
-					.withTypeFilter(IDENTITY_TYPEFILTER);
-			Map<String, Object> objects = ClassUtil.discoverObjects(node, context, options);
-			for (Object obj : objects.values()) {
-				if (obj instanceof Identity) {
-					Identity identity = (Identity) obj;
-					if (identity.matches(context.getNodeId())) {
-						LOG.info("  +node: " + node);
-						context.setNode(node);
-						return node;
+		try (ConsoleUtil log = ConsoleUtil.OUT) {
+			log.normal().append("resolving node class:").print();
+			for (Class<? extends Node> clazz : projectConfiguration.getNodeClasses()) {
+				Node node = ClassUtil.createInstance(clazz, context);
+				ObjectDiscoveryOptions options = ObjectDiscoveryOptions.createInstanceForDependencyDiscovery()
+						.withTypeFilter(IDENTITY_TYPEFILTER);
+				Map<String, Object> objects = ClassUtil.discoverObjects(node, context, options);
+				for (Object obj : objects.values()) {
+					if (obj instanceof Identity) {
+						Identity identity = (Identity) obj;
+						if (identity.matches(context.getNodeId())) {
+							log.normal().foreground(Color.GREEN).append("  +node: " + node).print();
+							context.setNode(node);
+							return node;
+						}
 					}
 				}
 			}
+			return null;
 		}
-		return null;
 	}
 }

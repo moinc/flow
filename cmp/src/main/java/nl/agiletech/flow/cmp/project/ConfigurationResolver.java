@@ -4,6 +4,8 @@ package nl.agiletech.flow.cmp.project;
 import java.util.logging.Logger;
 
 import nl.agiletech.flow.cmp.jarinspector.ClassUtil;
+import nl.agiletech.flow.common.cli.logging.Color;
+import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
 import nl.agiletech.flow.project.types.ConfigurationMapper;
 import nl.agiletech.flow.project.types.Context;
 
@@ -23,11 +25,13 @@ public class ConfigurationResolver implements ConfigurationMapper {
 
 	@Override
 	public void mapConfigurations(Context context) {
-		LOG.info("custom configuration mappers:");
-		for (Class<? extends ConfigurationMapper> clazz : projectConfiguration.getConfigurationMapperClasses()) {
-			LOG.info("  +" + clazz.getName());
-			ConfigurationMapper configurationMapper = ClassUtil.createInstance(clazz, context);
-			configurationMapper.mapConfigurations(context);
+		try (ConsoleUtil log = ConsoleUtil.OUT) {
+			log.normal().append("custom configuration mappers:").print();
+			for (Class<? extends ConfigurationMapper> clazz : projectConfiguration.getConfigurationMapperClasses()) {
+				log.normal().foreground(Color.GREEN).append("  +" + clazz.getName()).print();
+				ConfigurationMapper configurationMapper = ClassUtil.createInstance(clazz, context);
+				configurationMapper.mapConfigurations(context);
+			}
 		}
 	}
 }

@@ -2,7 +2,6 @@
 package nl.agiletech.flow.cmp.project;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -13,8 +12,9 @@ import java.util.logging.Logger;
 
 import nl.agiletech.flow.cmp.jarinspector.ClassUtil;
 import nl.agiletech.flow.cmp.jarinspector.ObjectDiscoveryOptions;
+import nl.agiletech.flow.common.cli.logging.Color;
+import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
 import nl.agiletech.flow.common.collections.CollectionUtil;
-import nl.agiletech.flow.common.util.HashUtil;
 import nl.agiletech.flow.project.types.ConfigurationProvider;
 import nl.agiletech.flow.project.types.Context;
 
@@ -36,33 +36,35 @@ public class Configurator {
 
 	public Map<String, Object> configure() throws IllegalArgumentException, IllegalAccessException,
 			InvocationTargetException, NoSuchAlgorithmException, IOException {
-		LOG.info("configuring data dictionary:");
-		String hash = HashUtil.digest((Serializable) context.getConfiguration());
+		try (ConsoleUtil log = ConsoleUtil.OUT) {
+			Map<String, Object> currentConfiguration = new LinkedHashMap<>();
+			currentConfiguration.putAll(context.getConfiguration());
 
-		Map<String, Object> configuration = new LinkedHashMap<>();
-		CollectionUtil.flatten(context.getNodeData().getValues(), configuration);
+			Map<String, Object> configuration = new LinkedHashMap<>();
+			CollectionUtil.flatten(context.getNodeData().getValues(), configuration);
 
-		// update context now to allow other configuration objects to use that
-		// information
-		context.setConfiguration(configuration);
+			// update context now to allow other configuration objects to use
+			// that
+			// information
+			context.setConfiguration(configuration);
 
-		for (ConfigurationProvider configurationProvider : context.getConfigurationProviders()) {
-			interrogateConfigurationProvider(configurationProvider, configuration);
+			for (ConfigurationProvider configurationProvider : context.getConfigurationProviders()) {
+				interrogateConfigurationProvider(configurationProvider, configuration);
+			}
+
+			// update context again to include the additional data
+			context.setConfiguration(configuration);
+
+			Map<String, Object> diff = CollectionUtil.diff(currentConfiguration, configuration);
+			if (diff.size() == 0) {
+				log.normal().append("configuring data dictionary: no changes").print();
+			} else {
+				log.normal().append("configuring data dictionary:").print();
+				printToLog(diff);
+			}
+
+			return configuration;
 		}
-
-		// update context again to include the additional data
-		context.setConfiguration(configuration);
-
-		String hash2 = HashUtil.digest((Serializable) context.getConfiguration());
-
-		if (hash.equals(hash2)) {
-			LOG.info("  (no changes in configuration)");
-		} else {
-			printToLog(configuration);
-			LOG.info("  hash: " + hash);
-		}
-
-		return configuration;
 	}
 
 	private void interrogateConfigurationProvider(ConfigurationProvider configurationProvider,
@@ -80,33 +82,35 @@ public class Configurator {
 
 	@SuppressWarnings("rawtypes")
 	private void printToLog(String key, Object value) {
-		Object v = value;
-		if (v == null) {
-			LOG.info("  +" + key + " = <null>]");
-			return;
-		} else if (v.getClass().isArray()) {
-			v = Arrays.asList((Object[]) v);
-		}
-		if (v instanceof Collection) {
-			int i = 0;
-			for (Object w : (Collection) v) {
-				String key2 = key + "[" + i + "]";
-				printToLog(key2, w);
-				i++;
+		try (ConsoleUtil log = ConsoleUtil.OUT) {
+			Object v = value;
+			if (v == null) {
+				log.normal().foreground(Color.GREEN).append("  +" + key + " = <null>]").print();
+				return;
+			} else if (v.getClass().isArray()) {
+				v = Arrays.asList((Object[]) v);
 			}
-			return;
-		}
-		if (v instanceof Map) {
-			Map map = (Map) v;
-			for (Object k : map.keySet()) {
-				String key2 = key + "." + k;
-				printToLog(key2, map.get(k));
+			if (v instanceof Collection) {
+				int i = 0;
+				for (Object w : (Collection) v) {
+					String key2 = key + "[" + i + "]";
+					printToLog(key2, w);
+					i++;
+				}
+				return;
 			}
-			return;
+			if (v instanceof Map) {
+				Map map = (Map) v;
+				for (Object k : map.keySet()) {
+					String key2 = key + "." + k;
+					printToLog(key2, map.get(k));
+				}
+				return;
+			}
+			if (value instanceof String && ((String) value).isEmpty()) {
+				v = "<empty>";
+			}
+			log.normal().foreground(Color.GREEN).append("  +" + key + " = " + v.toString()).print();
 		}
-		if (value instanceof String && ((String) value).isEmpty()) {
-			v = "<empty>";
-		}
-		LOG.info("  +" + key + " = " + v.toString());
 	}
 }

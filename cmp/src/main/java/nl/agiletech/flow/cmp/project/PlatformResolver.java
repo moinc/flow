@@ -4,6 +4,8 @@ package nl.agiletech.flow.cmp.project;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import nl.agiletech.flow.common.cli.logging.Color;
+import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
 import nl.agiletech.flow.project.types.Context;
 import nl.agiletech.flow.project.types.Node;
 import nl.agiletech.flow.project.types.Platform;
@@ -25,28 +27,30 @@ public class PlatformResolver {
 	}
 
 	public void resolve() {
-		LOG.info("resolving platform:");
-		Node node = context.getNode();
-		if (node == null) {
-			LOG.warning("failed to resolve platform: node not set");
-			return;
-		}
-		Class<? extends Node> nodeClass = node.getClass();
-		Set<Object> objects = projectConfiguration.getInvertedDependencyIndex().get(nodeClass);
-		if (objects == null) {
-			LOG.warning("failed to resolve platform: empty dependency index for node: " + node);
-		}
-		context.setPlatform(null);
-		for (Object obj : objects) {
-			if (obj instanceof Platform) {
-				Platform platform = (Platform) obj;
-				context.setPlatform(platform);
-				LOG.info("  +" + platform);
-				break;
+		try (ConsoleUtil log = ConsoleUtil.OUT) {
+			log.normal().append("resolving platform:").print();
+			Node node = context.getNode();
+			if (node == null) {
+				log.warning().append("failed to resolve platform: node not set").print();
+				return;
 			}
-		}
-		if (context.getPlatform() == null) {
-			LOG.warning("failed to resolve platform: not found");
+			Class<? extends Node> nodeClass = node.getClass();
+			Set<Object> objects = projectConfiguration.getInvertedDependencyIndex().get(nodeClass);
+			if (objects == null) {
+				log.warning().append("failed to resolve platform: empty dependency index for node: " + node).print();
+			}
+			context.setPlatform(null);
+			for (Object obj : objects) {
+				if (obj instanceof Platform) {
+					Platform platform = (Platform) obj;
+					context.setPlatform(platform);
+					log.normal().foreground(Color.GREEN).append("  +" + platform).print();
+					break;
+				}
+			}
+			if (context.getPlatform() == null) {
+				log.warning().append("failed to resolve platform: not found").print();
+			}
 		}
 	}
 }
