@@ -7,5 +7,12 @@
 	},
 	"projects" : {
 		"projectRoot" : "/tmp/flow/projects"
+	},
+	"service" : {
+		"port" : 8080
+	},
+	"bot" : {
+		"serviceURI" : "http://localhost:8080/update",
+		"maxCatalogs" : 10
 	}
 }

@@ -4,6 +4,8 @@ package nl.agiletech.flow.project.types;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.agiletech.flow.common.util.Assertions;
+
 public class NodeId implements Identity {
 	private static final String SEPARATOR = ":";
 	private static final String ANY_NETWORK_NAME_MASK = "*";
@@ -35,7 +37,7 @@ public class NodeId implements Identity {
 	}
 
 	public static final NodeId[] array(String... hostNames) {
-		assert hostNames != null && hostNames.length != 0;
+		Assertions.notEmpty(hostNames, "hostNames");
 		List<NodeId> nodeIds = new ArrayList<>();
 		for (String hostName : hostNames) {
 			nodeIds.add(get(null, hostName));
@@ -44,7 +46,7 @@ public class NodeId implements Identity {
 	}
 
 	public static final List<NodeId> list(String... hostNames) {
-		assert hostNames != null && hostNames.length != 0;
+		Assertions.notEmpty(hostNames, "hostNames");
 		List<NodeId> nodeIds = new ArrayList<>();
 		for (String hostName : hostNames) {
 			nodeIds.add(get(null, hostName));
@@ -60,8 +62,8 @@ public class NodeId implements Identity {
 	}
 
 	private NodeId(boolean unknown, String networkName, String hostName) {
-		assert networkName != null && !networkName.isEmpty();
-		assert hostName != null;
+		Assertions.notEmpty(networkName, "networkName");
+		Assertions.notNull(hostName, "hostName");
 		this.unknown = unknown;
 		this.networkName = networkName;
 		this.hostName = hostName;

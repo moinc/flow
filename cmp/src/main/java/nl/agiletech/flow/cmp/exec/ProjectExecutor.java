@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.logging.Logger;
 
 import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
+import nl.agiletech.flow.common.util.Assertions;
 import nl.agiletech.flow.project.types.Context;
 import nl.agiletech.flow.project.types.Filter;
 import nl.agiletech.flow.project.types.Switchable;
@@ -30,6 +31,8 @@ public class ProjectExecutor {
 	}
 
 	private ProjectExecutor(OutputStream outputStream, Context context) {
+		Assertions.notNull(outputStream, "outputStream");
+		Assertions.notNull(context, "context");
 		this.outputStream = outputStream;
 		this.context = context;
 		this.requestHandlerFactory = new DefaultRequestHandlerFactory(context);
@@ -50,7 +53,8 @@ public class ProjectExecutor {
 	}
 
 	private void initialize(Context context) {
-		try (ConsoleUtil log = ConsoleUtil.OUT) {
+		Assertions.notNull(context, "context");
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
 			log.faint().append("--- initialize ---").print();
 			for (Object obj : context.getDependencies(ENABLED_TASK_FILTER)) {
 				initialize((Task) obj, context);
@@ -59,7 +63,9 @@ public class ProjectExecutor {
 	}
 
 	private void initialize(Task task, Context context) {
-		try (ConsoleUtil log = ConsoleUtil.OUT) {
+		Assertions.notNull(task, "task");
+		Assertions.notNull(context, "context");
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
 			log.normal().append("initialize task: " + task).print();
 			try {
 				task.initialize(context);
@@ -71,7 +77,10 @@ public class ProjectExecutor {
 
 	private void executeRequest(Context context, RequestHandlerFactory requestHandlerFactory, Response response)
 			throws Exception {
-		try (ConsoleUtil log = ConsoleUtil.OUT) {
+		Assertions.notNull(context, "context");
+		Assertions.notNull(requestHandlerFactory, "requestHandlerFactory");
+		Assertions.notNull(response, "response");
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
 			log.faint().append("--- execute ---").print();
 			RequestHandler requestHandler = requestHandlerFactory.create();
 			requestHandler.handle(context, response);
@@ -79,7 +88,8 @@ public class ProjectExecutor {
 	}
 
 	private void terminate(Context context) {
-		try (ConsoleUtil log = ConsoleUtil.OUT) {
+		Assertions.notNull(context, "context");
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
 			log.faint().append("--- terminate ---").print();
 			for (Object obj : context.getDependencies(ENABLED_TASK_FILTER)) {
 				terminate((Task) obj, context);
@@ -88,7 +98,9 @@ public class ProjectExecutor {
 	}
 
 	private void terminate(Task task, Context context) {
-		try (ConsoleUtil log = ConsoleUtil.OUT) {
+		Assertions.notNull(task, "task");
+		Assertions.notNull(context, "context");
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
 			log.normal().append("terminate task: " + task).print();
 			try {
 				task.terminate(context);

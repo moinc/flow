@@ -18,7 +18,7 @@ public class StringUtil {
 	}
 
 	public static List<String> factors(String... values) {
-		assert values != null;
+		Assertions.notNull(values, "values");
 		List<String> result = new ArrayList<>();
 		StringBuffer x = new StringBuffer();
 		for (String value : values) {
@@ -32,7 +32,8 @@ public class StringUtil {
 	}
 
 	public static String join(Object values, String separator) {
-		assert values != null && separator != null;
+		Assertions.notNull(values, "values");
+		Assertions.notNull(separator, "separator");
 		StringBuffer sb = new StringBuffer();
 		Object[] x = new Object[0];
 		if (values instanceof Collection) {

@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
 import nl.agiletech.flow.project.types.ConfigurationSettings;
 
 public class ResourceRouterHttpHandler implements HttpHandler {
@@ -30,25 +31,28 @@ public class ResourceRouterHttpHandler implements HttpHandler {
 
 	@Override
 	public void handle(HttpExchange ex) throws IOException {
-		assertValid();
-		for (Entry<ResourceMatcher, RootHttpHandler> handlerEntry : handlers.entrySet()) {
-			ResourceMatcher resourceMatcher = handlerEntry.getKey();
-			Map<String, Object> data = new LinkedHashMap<>();
-			if (resourceMatcher.match(ex, data)) {
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
+			assertValid();
+			log.normal().append("routing request").print();
+			for (Entry<ResourceMatcher, RootHttpHandler> handlerEntry : handlers.entrySet()) {
+				ResourceMatcher resourceMatcher = handlerEntry.getKey();
 				RootHttpHandler handler = handlerEntry.getValue();
-				handler.handle(ex, data);
-				return;
+				Map<String, Object> data = new LinkedHashMap<>();
+				if (resourceMatcher.match(ex, data)) {
+					log.normal().append("  " + handler + " <-- match");
+					handler.handle(ex, data);
+					return;
+				} else {
+					log.normal().append("  " + handler);
+				}
 			}
+			log.error().append("no matching handler found for request");
+			HttpResponse resp = new HttpResponse(HttpAdapterUtil.createUnimplementAdapter(HttpServletResponse.class),
+					ex);
+			resp.sendError(HttpServletResponse.SC_NOT_FOUND, "resource not found: " + ex.getRequestURI());
+			resp.complete();
 		}
-
-		HttpResponse resp = new HttpResponse(HttpAdapterUtil.createUnimplementAdapter(HttpServletResponse.class), ex);
-		resp.sendError(HttpServletResponse.SC_NOT_FOUND, "resource not found");
-		resp.complete();
 	}
-
-	// public void addHandler(ResourceMatcher matcher, HttpHandler handler) {
-	// handlers.put(matcher, handler);
-	// }
 
 	public void addServlet(ResourceMatcher matcher, HttpServlet servlet) throws ServletException {
 		ServletConfig servletConfig = new HttpServletConfig(servlet, configurationSettings);

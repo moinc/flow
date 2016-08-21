@@ -2,6 +2,9 @@ package nl.agiletech.flow.common.cli.logging;
 
 import java.io.Closeable;
 import java.io.PrintStream;
+import java.util.logging.Logger;
+
+import nl.agiletech.flow.common.util.Assertions;
 
 public class ConsoleUtil implements Closeable {
 	public class ConsoleMessage {
@@ -59,13 +62,13 @@ public class ConsoleUtil implements Closeable {
 		}
 
 		public ConsoleMessage append(String text) {
-			assert text != null;
+			Assertions.notNull(text, "text");
 			sb.append(text);
 			return this;
 		}
 
 		public ConsoleMessage appendLn(String text) {
-			assert text != null;
+			Assertions.notNull(text, "text");
 			sb.append(text);
 			sb.append("\n");
 			return this;
@@ -80,9 +83,15 @@ public class ConsoleUtil implements Closeable {
 
 	private final PrintStream printStream;
 	private ConsoleMessage msg;
+	private Logger logger;
 
 	public ConsoleUtil(PrintStream printStream) {
 		this.printStream = printStream;
+	}
+
+	public ConsoleUtil withLogger(Logger logger) {
+		this.logger = logger;
+		return this;
 	}
 
 	public ConsoleMessage normal() {

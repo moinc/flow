@@ -77,7 +77,7 @@ abstract class AbstractFile extends Task {
 	 * @return a dependency
 	 */
 	@Override
-	public Dependency asDependency() {
-		return Dependency.get(getSource() + " ---> " + getDestination(), getVersion());
+	public Requirement asRequirement() {
+		return Requirement.get(getSource() + " --> " + getDestination(), getVersion());
 	}
 }

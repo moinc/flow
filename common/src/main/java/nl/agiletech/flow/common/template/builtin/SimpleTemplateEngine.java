@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import nl.agiletech.flow.common.template.TemplateEngine;
 import nl.agiletech.flow.common.template.TemplateRenderException;
+import nl.agiletech.flow.common.util.Assertions;
 
 // TODO: data dictionary is now a flat list, adjust lookup code to deal with that
 public class SimpleTemplateEngine implements TemplateEngine {
@@ -30,7 +31,9 @@ public class SimpleTemplateEngine implements TemplateEngine {
 	@Override
 	public void render(Reader src, Writer dest, Map<String, Object> dataDictionary)
 			throws IOException, TemplateRenderException {
-		assert src != null && dest != null && dataDictionary != null;
+		Assertions.notNull(src, "src");
+		Assertions.notNull(dest, "dest");
+		Assertions.notNull(dataDictionary, "dataDictionary");
 		try (BufferedReader reader = new BufferedReader(src)) {
 			int lineNum = 0;
 			String line;
@@ -74,7 +77,7 @@ public class SimpleTemplateEngine implements TemplateEngine {
 	}
 
 	private String parse(String expr, Map<String, Object> dataDictionary) throws TemplateRenderException {
-		assert expr != null;
+		Assertions.notNull(expr, "expr");
 		if (expr.isEmpty()) {
 			throw new TemplateRenderException("unexpected error: unparsable placeholder");
 		}
@@ -101,6 +104,8 @@ public class SimpleTemplateEngine implements TemplateEngine {
 
 	@SuppressWarnings("rawtypes")
 	private Object lookup(String key, Map dataDictionary) throws TemplateRenderException {
+		Assertions.notEmpty(key, "key");
+		Assertions.notNull(dataDictionary, "dataDictionary");
 		String keyToResolve = key;
 		if (dataDictionary.containsKey(keyToResolve)) {
 			return dataDictionary.get(keyToResolve);
@@ -164,88 +169,4 @@ public class SimpleTemplateEngine implements TemplateEngine {
 		}
 		return value;
 	}
-
-	// @SuppressWarnings("rawtypes")
-	// private Object lookup(Queue<String> queue, Map dataDictionary) throws
-	// TemplateRenderException {
-	// assert queue != null && dataDictionary != null;
-	// String keyToResolve = queue.poll();
-	//
-	// // if the key contains an indexer, get the indexer value and return a
-	// // key without the indexer
-	// StringBuffer newKey = new StringBuffer();
-	// int arrayIndex =
-	// getIndexerValueFromExpressionAndReturnExpressionWithoutIndexer(keyToResolve,
-	// newKey);
-	// if (arrayIndex != -1) {
-	// keyToResolve = newKey.toString();
-	// }
-	//
-	// if (dataDictionary.containsKey(keyToResolve)) {
-	// Object value = getValue(dataDictionary, keyToResolve, arrayIndex);
-	// if (value != null) {
-	// if (queue.isEmpty()) {
-	// return value;
-	// }
-	// if (value instanceof Map) {
-	// value = lookup(queue, (Map) value);
-	// if (value != null) {
-	// return value;
-	// }
-	// }
-	// }
-	// }
-	// throw new TemplateRenderException("failed to find key: " + keyToResolve +
-	// " in data dictionary");
-	// }
-
-	// /**
-	// * Compare two arrays for equality. The first array may contain elements
-	// * containing a wildcard (e.g. '*' or '?') in which case any element
-	// should
-	// * match.
-	// *
-	// * @throws TemplateRenderException
-	// */
-	// private boolean matches(String[] a, String[] b) throws
-	// TemplateRenderException {
-	// assert a != null && a.length != 0 && b != null && b.length != 0;
-	// String[] q = Arrays.copyOf(a, a.length);
-	// String last = q[q.length - 1];
-	// if ("*".equals(last) || "?".equals(last)) {
-	// throw new TemplateRenderException(
-	// "specified key: " + StringUtil.join(q, ".") + " cannot end with
-	// wildcard");
-	// }
-	// // find the last '*' from left to right
-	// int lastAsteriskOnLeft = -1;
-	// for (int i = 0; i < q.length; i++) {
-	// if ("*".equals(q[i])) {
-	// lastAsteriskOnLeft = Math.max(lastAsteriskOnLeft, i);
-	// }
-	// }
-	// if (lastAsteriskOnLeft != -1) {
-	// // remove all elements in a on left of and including the last
-	// // asterisk
-	// int offset = lastAsteriskOnLeft + 1;
-	// String[] q1 = new String[q.length - offset];
-	// System.arraycopy(q, offset, q1, 0, q1.length);
-	// q = q1;
-	// }
-	// if (lastAsteriskOnLeft == -1) {
-	// if (q.length != b.length) {
-	// return false;
-	// }
-	// }
-	// boolean matches = true;
-	// int ql = q.length - 1;
-	// int bl = b.length - 1;
-	// for (int i = 0; matches && i < q.length; i++) {
-	// String qq = q[ql - i];
-	// if (!"?".equals(qq) && !qq.equals(b[bl - i])) {
-	// matches = false;
-	// }
-	// }
-	// return matches;
-	// }
 }

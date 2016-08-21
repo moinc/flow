@@ -6,6 +6,8 @@ import nl.agiletech.flow.project.types.Component;
 
 @Flow
 public class TomcatComponent extends Component {
+	public Component ufwComponent = new UfwComponent();
+
 	@Override
 	public String getPackageName() {
 		return "tomcat";

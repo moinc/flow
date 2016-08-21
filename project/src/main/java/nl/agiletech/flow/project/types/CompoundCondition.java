@@ -3,6 +3,8 @@ package nl.agiletech.flow.project.types;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.agiletech.flow.common.util.Assertions;
+
 public class CompoundCondition implements Condition {
 	public static final CompoundCondition AND = new CompoundCondition(BooleanOperator.AND);
 	public static final CompoundCondition OR = new CompoundCondition(BooleanOperator.OR);
@@ -41,7 +43,7 @@ public class CompoundCondition implements Condition {
 
 	@Override
 	public void setContext(Context context) {
-		assert context != null;
+		Assertions.notNull(context, "context");
 		for (Condition operand : operands) {
 			operand.setContext(context);
 		}

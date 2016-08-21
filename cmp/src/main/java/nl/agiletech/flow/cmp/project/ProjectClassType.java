@@ -2,12 +2,48 @@
 package nl.agiletech.flow.cmp.project;
 
 public enum ProjectClassType {
-	UNDEFINED,
+	UNDEFINED(false),
 
 	/**
 	 * Project class annotated with {@link FlowConfig}
 	 */
-	CONFIG,
+	CONFIG(false),
 
-	TAG, ROLE, NODE_IDENTIFIER, CONFIGURATION_MAPPER, NODE, PLATFORM, COMPONENT, CUSTOM_COMPONENT, FILE, CUSTOM_FILE, TEMPLATE, INSPECTOR
+	TAG(false),
+
+	ROLE(false),
+
+	NODE_IDENTIFIER(false),
+
+	CONFIGURATION_MAPPER(false),
+
+	NODE(true),
+
+	PLATFORM(false),
+
+	COMPONENT(true),
+
+	CUSTOM_COMPONENT(true),
+
+	FILE(true),
+
+	CUSTOM_FILE(true),
+
+	TEMPLATE(true),
+
+	INSPECTOR(true),
+
+	ASPECT(false),
+
+	REQUIREMENT(false);
+
+	private final boolean taskSubclass;
+
+	ProjectClassType(boolean taskSubclass) {
+		this.taskSubclass = taskSubclass;
+	}
+
+	public boolean isTaskSubclass() {
+		return taskSubclass;
+	}
 }

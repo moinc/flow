@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.agiletech.flow.common.reflect.ClassUtil;
+import nl.agiletech.flow.common.util.Assertions;
 
 /**
  * Task is the base class for all classes that express something that 'needs to
@@ -18,7 +19,7 @@ import nl.agiletech.flow.common.reflect.ClassUtil;
 public abstract class Task implements TakesContext, TakesCondition, HasAttributes {
 	protected Context context;
 	private final boolean repeatable;
-	private final List<Dependency> dependencies = new ArrayList<>();
+	private final List<Requirement> dependencies = new ArrayList<>();
 	private Condition condition = Condition.TRUE;
 	private final Attributes attributes = new Attributes();
 
@@ -28,14 +29,14 @@ public abstract class Task implements TakesContext, TakesCondition, HasAttribute
 
 	@Override
 	public void setContext(Context context) {
-		assert context != null;
+		Assertions.notNull(context, "context");
 		this.context = context;
 		this.condition.setContext(context);
 	}
 
 	@Override
 	public void setCondition(Condition condition) {
-		assert condition != null;
+		Assertions.notNull(condition, "condition");
 		this.condition = condition;
 		if (context != null) {
 			this.condition.setContext(context);
@@ -64,12 +65,12 @@ public abstract class Task implements TakesContext, TakesCondition, HasAttribute
 	public abstract String getVersion();
 
 	/**
-	 * Returns a dependency to this task.
+	 * Returns a {@link Requirement} to this task instance.
 	 * 
-	 * @return a dependency
+	 * @return a requirement
 	 */
-	public Dependency asDependency() {
-		return Dependency.get(getClassName(), getVersion());
+	public Requirement asRequirement() {
+		return Requirement.get(getClassName(), getVersion());
 	}
 
 	/**
@@ -81,17 +82,17 @@ public abstract class Task implements TakesContext, TakesCondition, HasAttribute
 		return repeatable;
 	}
 
-	protected void addDependency(Dependency... dependencies) {
-		assert dependencies != null;
-		for (Dependency dependency : dependencies) {
+	protected void addDependency(Requirement... dependencies) {
+		Assertions.notNull(dependencies, "dependencies");
+		for (Requirement dependency : dependencies) {
 			this.dependencies.add(dependency);
 		}
 	}
 
 	protected void addDependencyForAnyVersion(String... dependencyNames) {
-		assert dependencyNames != null;
+		Assertions.notNull(dependencyNames, "dependencyNames");
 		for (String dependencyName : dependencyNames) {
-			this.dependencies.add(Dependency.getForAnyVersion(dependencyName));
+			this.dependencies.add(Requirement.getForAnyVersion(dependencyName));
 		}
 	}
 

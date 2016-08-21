@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import nl.agiletech.flow.cmp.jarinspector.InspectionObserver;
+import nl.agiletech.flow.common.util.Assertions;
 import nl.agiletech.flow.project.types.ConfigurationMapper;
 import nl.agiletech.flow.project.types.Node;
 import nl.agiletech.flow.project.types.NodeIdentifier;
@@ -26,47 +27,56 @@ public class ProjectConfiguration implements InspectionObserver, DependencyObser
 	final List<Class<? extends Node>> nodeClasses = new ArrayList<>();
 	final List<Class<? extends Task>> taskClasses = new ArrayList<>();
 	final List<Class<?>> tagClasses = new ArrayList<>();
-
+	
 	// indices
 	final Map<Object, Set<Class<?>>> dependencyIndex = new HashMap<>();
 	final Map<Class<?>, Set<Object>> invertedDependencyIndex = new HashMap<>();
 
 	public void addConfigurationClass(Class<?> clazz) {
+		Assertions.notNull(clazz, "clazz");
 		LOG.fine("adding configuration class: " + clazz.getName());
 		configurationClasses.add(clazz);
 	}
 
 	public void addNodeIdentifierClass(Class<? extends NodeIdentifier> clazz) {
+		Assertions.notNull(clazz, "clazz");
 		LOG.fine("adding custom node identifier class: " + clazz.getName());
 		nodeIdentifierClasses.add(clazz);
 	}
 
 	public void addConfigurationMapperClass(Class<? extends ConfigurationMapper> clazz) {
+		Assertions.notNull(clazz, "clazz");
 		LOG.fine("adding custom configuration mapper class: " + clazz.getName());
 		configurationMapperClasses.add(clazz);
 	}
 
 	public void addRoleClass(Class<? extends Role> clazz) {
+		Assertions.notNull(clazz, "clazz");
 		LOG.fine("adding role class: " + clazz.getName());
 		roleClasses.add(clazz);
 	}
 
 	public void addNodeClass(Class<? extends Node> clazz) {
+		Assertions.notNull(clazz, "clazz");
 		LOG.fine("adding node class: " + clazz.getName());
 		nodeClasses.add(clazz);
 	}
 
 	public void addTaskClass(Class<? extends Task> clazz) {
+		Assertions.notNull(clazz, "clazz");
 		LOG.fine("adding task class: " + clazz.getName());
 		taskClasses.add(clazz);
 	}
 
 	public void addTagClass(Class<?> clazz) {
+		Assertions.notNull(clazz, "clazz");
 		LOG.fine("adding tag class: " + clazz.getName());
 		tagClasses.add(clazz);
 	}
 
 	public void addDependencyIndexEntry(Object obj, Class<?> declaredIn) {
+		Assertions.notNull(obj, "obj");
+		Assertions.notNull(declaredIn, "declaredIn");
 		LOG.fine("adding dependency to index; object: " + obj + " was declared in: " + declaredIn.getName());
 
 		Set<Class<?>> list = dependencyIndex.get(obj);
@@ -125,6 +135,7 @@ public class ProjectConfiguration implements InspectionObserver, DependencyObser
 	@SuppressWarnings("unchecked")
 	@Override
 	public void observe(Class<?> clazz) {
+		Assertions.notNull(clazz, "clazz");
 		ProjectClassType projectClassType = ProjectClassUtil.getProjectClassType(clazz);
 		if (projectClassType != ProjectClassType.UNDEFINED) {
 			LOG.fine(clazz.getName());
@@ -162,6 +173,10 @@ public class ProjectConfiguration implements InspectionObserver, DependencyObser
 			break;
 		case UNDEFINED:
 			break;
+		case ASPECT:
+			break;
+		case REQUIREMENT:
+			break;
 
 		default:
 			break;
@@ -170,6 +185,8 @@ public class ProjectConfiguration implements InspectionObserver, DependencyObser
 
 	@Override
 	public void observe(Object obj, Class<?> declaredIn) {
+		Assertions.notNull(obj, "obj");
+		Assertions.notNull(declaredIn, "declaredIn");
 		addDependencyIndexEntry(obj, declaredIn);
 	}
 }

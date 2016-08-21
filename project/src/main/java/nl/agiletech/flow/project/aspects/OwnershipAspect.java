@@ -1,11 +1,14 @@
 package nl.agiletech.flow.project.aspects;
 
+import nl.agiletech.flow.project.annotation.FlowIgnore;
 import nl.agiletech.flow.project.types.Aspect;
 import nl.agiletech.flow.project.types.Attribute;
 import nl.agiletech.flow.project.types.HasAttributes;
 
 public class OwnershipAspect implements Aspect {
+	@FlowIgnore
 	public static final OwnershipAspect OPTIONAL = new OwnershipAspect(false);
+	@FlowIgnore
 	public static final OwnershipAspect REQUIRED = new OwnershipAspect(true);
 
 	final boolean required;

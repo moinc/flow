@@ -14,11 +14,12 @@ import nl.agiletech.flow.common.cli.CliException;
 import nl.agiletech.flow.common.cli.Command;
 import nl.agiletech.flow.common.cli.CommandExecutor;
 import nl.agiletech.flow.common.cli.CommandInfo;
+import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
+import nl.agiletech.flow.common.util.Assertions;
 import nl.agiletech.flow.flw.http.ResourceRouterHttpHandler;
 import nl.agiletech.flow.flw.http.SimpleHttpServer;
 import nl.agiletech.flow.flw.listeners.ServletContextListenerTest;
 import nl.agiletech.flow.flw.matchers.AllMatchers;
-import nl.agiletech.flow.flw.servlets.InspectServlet;
 import nl.agiletech.flow.flw.servlets.ResourceServlet;
 import nl.agiletech.flow.flw.servlets.UpdateServlet;
 import nl.agiletech.flow.project.types.ConfigurationSettings;
@@ -48,40 +49,41 @@ public class ListenCommand implements CommandInfo, CommandExecutor {
 
 	@Override
 	public void execute(Command command, CommandLine commandLine, AppState appState) throws CliException {
-		// process options and arguments
-		File flowConfigFile = null;
-		if (commandLine.hasOption("c")) {
-			String flowConfigPath = commandLine.getOptionValue("c");
-			flowConfigFile = new File(flowConfigPath);
-		}
-		assert flowConfigFile != null && flowConfigFile.exists();
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
+			// process options and arguments
+			File flowConfigFile = null;
+			if (commandLine.hasOption("c")) {
+				String flowConfigPath = commandLine.getOptionValue("c");
+				flowConfigFile = new File(flowConfigPath);
+			}
+			Assertions.exists(flowConfigFile, "flowConfigFile");
 
-		// load files
-		ConfigurationSettings configurationSettings = null;
-		try {
-			configurationSettings = ConfigurationSettings.loadFrom(flowConfigFile);
-		} catch (IOException e) {
-			throw new CliException("failed to read flow configuration file", e);
-		}
+			// load files
+			ConfigurationSettings configurationSettings = null;
+			try {
+				configurationSettings = ConfigurationSettings.loadFrom(flowConfigFile);
+			} catch (IOException e) {
+				throw new CliException("failed to read flow configuration file", e);
+			}
 
-		ResourceRouterHttpHandler resourceRouter = new ResourceRouterHttpHandler(configurationSettings);
-		try {
-			resourceRouter.addServlet(AllMatchers.createInspectMatcher(), new InspectServlet());
-			resourceRouter.addServlet(AllMatchers.createUpdateMatcher(), new UpdateServlet());
-			resourceRouter.addServlet(AllMatchers.createResourceMatcher(), new ResourceServlet());
-		} catch (ServletException e) {
-			throw new CliException(e);
-		}
+			ResourceRouterHttpHandler resourceRouter = new ResourceRouterHttpHandler(configurationSettings);
+			try {
+				resourceRouter.addServlet(AllMatchers.createUpdateMatcher(), new UpdateServlet());
+				resourceRouter.addServlet(AllMatchers.createResourceMatcher(), new ResourceServlet());
+			} catch (ServletException e) {
+				throw new CliException(e);
+			}
 
-		SimpleHttpServer server = new SimpleHttpServer(configurationSettings, resourceRouter);
-		server.addListener(new ServletContextListenerTest());
+			SimpleHttpServer server = new SimpleHttpServer(configurationSettings, resourceRouter);
+			server.addListener(new ServletContextListenerTest());
 
-		try {
-			server.start(8080);
-		} catch (IOException e) {
-			throw new CliException(e);
-		} catch (ServletException e) {
-			throw new CliException(e);
+			try {
+				server.start(configurationSettings.getServicePort());
+			} catch (IOException e) {
+				throw new CliException(e);
+			} catch (ServletException e) {
+				throw new CliException(e);
+			}
 		}
 	}
 

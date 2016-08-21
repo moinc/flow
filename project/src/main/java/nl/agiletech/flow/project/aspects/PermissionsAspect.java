@@ -1,11 +1,14 @@
 package nl.agiletech.flow.project.aspects;
 
+import nl.agiletech.flow.project.annotation.FlowIgnore;
 import nl.agiletech.flow.project.types.Aspect;
 import nl.agiletech.flow.project.types.Attribute;
 import nl.agiletech.flow.project.types.HasAttributes;
 
 public class PermissionsAspect implements Aspect {
+	@FlowIgnore
 	public static final PermissionsAspect OPTIONAL = new PermissionsAspect(false);
+	@FlowIgnore
 	public static final PermissionsAspect REQUIRED = new PermissionsAspect(true);
 
 	public static final int READ = 4;

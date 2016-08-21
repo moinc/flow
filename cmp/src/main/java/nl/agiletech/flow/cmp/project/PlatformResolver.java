@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import nl.agiletech.flow.common.cli.logging.Color;
 import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
+import nl.agiletech.flow.common.util.Assertions;
 import nl.agiletech.flow.project.types.Context;
 import nl.agiletech.flow.project.types.Node;
 import nl.agiletech.flow.project.types.Platform;
@@ -21,23 +22,24 @@ public class PlatformResolver {
 	final ProjectConfiguration projectConfiguration;
 
 	private PlatformResolver(Context context, ProjectConfiguration projectConfiguration) {
-		assert context != null && projectConfiguration != null;
+		Assertions.notNull(context, "context");
+		Assertions.notNull(projectConfiguration, "projectConfiguration");
 		this.context = context;
 		this.projectConfiguration = projectConfiguration;
 	}
 
 	public void resolve() {
-		try (ConsoleUtil log = ConsoleUtil.OUT) {
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
 			log.normal().append("resolving platform:").print();
 			Node node = context.getNode();
 			if (node == null) {
-				log.warning().append("failed to resolve platform: node not set").print();
+				log.warning().append("  -failed to resolve platform: node not set").print();
 				return;
 			}
 			Class<? extends Node> nodeClass = node.getClass();
 			Set<Object> objects = projectConfiguration.getInvertedDependencyIndex().get(nodeClass);
 			if (objects == null) {
-				log.warning().append("failed to resolve platform: empty dependency index for node: " + node).print();
+				log.warning().append("  -failed to resolve platform: empty dependency index for node: " + node).print();
 			}
 			context.setPlatform(null);
 			for (Object obj : objects) {
@@ -49,7 +51,7 @@ public class PlatformResolver {
 				}
 			}
 			if (context.getPlatform() == null) {
-				log.warning().append("failed to resolve platform: not found").print();
+				log.warning().append("  -failed to resolve platform: not found").print();
 			}
 		}
 	}

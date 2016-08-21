@@ -6,6 +6,13 @@
 		"engine" : null
 	},
 	"projects" : {
-		"projectRoot" : "../build/1.0/StarterProject/libs"
+		"projectRoot" : "build/1.0/StarterProject/libs"
+	},
+	"service" : {
+		"port" : 8080
+	},
+	"bot" : {
+		"serviceURI" : "http://localhost:8080/update",
+		"maxCatalogs" : 2
 	}
 }

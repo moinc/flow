@@ -8,6 +8,7 @@ import nl.agiletech.flow.cmp.exec.responsetypes.NullResponse;
 import nl.agiletech.flow.cmp.exec.responsetypes.ReportResponse;
 import nl.agiletech.flow.cmp.exec.responsetypes.ResourceResponse;
 import nl.agiletech.flow.cmp.exec.responsetypes.UpdateResponse;
+import nl.agiletech.flow.common.util.Assertions;
 import nl.agiletech.flow.project.types.Context;
 
 public class DefaultResponseFactory implements ResponseFactory {
@@ -15,6 +16,8 @@ public class DefaultResponseFactory implements ResponseFactory {
 	final Context context;
 
 	public DefaultResponseFactory(OutputStream outputStream, Context context) {
+		Assertions.notNull(outputStream, "outputStream");
+		Assertions.notNull(context, "context");
 		this.outputStream = outputStream;
 		this.context = context;
 	}

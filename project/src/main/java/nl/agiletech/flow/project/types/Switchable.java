@@ -1,5 +1,7 @@
 package nl.agiletech.flow.project.types;
 
+import nl.agiletech.flow.common.util.Assertions;
+
 /**
  * Interface for objects that can be 'switched on or off'.
  * 
@@ -8,7 +10,7 @@ package nl.agiletech.flow.project.types;
  */
 public interface Switchable {
 	public static boolean isEnabled(Object obj) {
-		assert obj != null;
+		Assertions.notNull(obj, "obj");
 		if (obj instanceof Switchable) {
 			Switchable switchable = (Switchable) obj;
 			return switchable.isEnabled();

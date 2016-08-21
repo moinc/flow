@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import nl.agiletech.flow.common.template.TemplateEngine;
 import nl.agiletech.flow.common.template.TemplateRenderException;
 import nl.agiletech.flow.common.template.builtin.SimpleTemplateEngine;
+import nl.agiletech.flow.common.util.Assertions;
 
 public class Context implements ProvidesContext {
 	private static final Logger LOG = Logger.getLogger(Context.class.getName());
@@ -33,6 +34,7 @@ public class Context implements ProvidesContext {
 	TemplateEngine templateEngine;
 	final Map<String, Object> configuration = new LinkedHashMap<>();
 	final List<Object> dependencies = new ArrayList<>();
+	final List<ContextError> errors = new ArrayList<>();
 
 	public static Context createInstance(ContextValidator contextValidator, ConfigurationSettings configurationSettings,
 			RequestType requestType) throws Exception {
@@ -51,16 +53,17 @@ public class Context implements ProvidesContext {
 
 	private Context(ContextValidator contextValidator, ConfigurationSettings configurationSettings, UUID sessionId,
 			RequestType requestType, NodeData nodeData) throws Exception {
-		assert contextValidator != null && configurationSettings != null && sessionId != null && requestType != null
-				&& nodeData != null;
+		Assertions.notNull(contextValidator, "contextValidator");
+		Assertions.notNull(configurationSettings, "configurationSettings");
+		Assertions.notNull(sessionId, "sessionId");
+		Assertions.notNull(requestType, "requestType");
+		Assertions.notNull(nodeData, "nodeData");
 		this.contextValidator = contextValidator;
 		this.configurationSettings = configurationSettings;
 		this.sessionId = sessionId;
 		this.requestType = requestType;
 		this.nodeData = nodeData;
-
 		initTemplateEngine();
-
 		applyTo(this.configurationSettings, this.nodeData);
 	}
 
@@ -148,14 +151,14 @@ public class Context implements ProvidesContext {
 	}
 
 	public void createConfigurationProvider(Object... objects) {
-		assert objects != null;
+		Assertions.notNull(objects, "objects");
 		for (Object obj : objects) {
 			addConfigurationProvider(new SimpleConfigurationProvider(obj));
 		}
 	}
 
 	public void addConfigurationProvider(ConfigurationProvider... providers) {
-		assert providers != null;
+		Assertions.notNull(providers, "providers");
 		for (ConfigurationProvider provider : providers) {
 			applyTo(provider);
 			configurationProviders.add(provider);
@@ -167,7 +170,7 @@ public class Context implements ProvidesContext {
 	}
 
 	public void setConfiguration(Map<String, Object> configuration) {
-		assert configuration != null;
+		Assertions.notNull(configuration, "configuration");
 		this.configuration.putAll(configuration);
 	}
 
@@ -176,12 +179,13 @@ public class Context implements ProvidesContext {
 	}
 
 	public void setDependencies(List<Object> dependencies) {
+		Assertions.notNull(dependencies, "dependencies");
 		this.dependencies.clear();
 		this.dependencies.addAll(dependencies);
 	}
 
 	public List<Object> getDependencies(Filter<Object> filter) {
-		assert filter != null;
+		Assertions.notNull(filter, "filter");
 		List<Object> result = new ArrayList<>();
 		for (Object dependency : dependencies) {
 			if (dependency != null && filter.include(dependency)) {
@@ -191,6 +195,14 @@ public class Context implements ProvidesContext {
 		return result;
 	}
 
+	public void addError(ContextError error) {
+		errors.add(error);
+	}
+
+	public List<ContextError> getErrors() {
+		return errors;
+	}
+
 	public void validate() {
 		validationErrors.clear();
 		contextValidator.validate(this, validationErrors);
@@ -198,5 +210,10 @@ public class Context implements ProvidesContext {
 
 	public List<String> getValidationErrors() {
 		return validationErrors;
+	}
+
+	public boolean isValid() {
+		validate();
+		return validationErrors.size() == 0;
 	}
 }

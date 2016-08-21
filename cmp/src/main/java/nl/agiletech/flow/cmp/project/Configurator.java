@@ -15,6 +15,7 @@ import nl.agiletech.flow.cmp.jarinspector.ObjectDiscoveryOptions;
 import nl.agiletech.flow.common.cli.logging.Color;
 import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
 import nl.agiletech.flow.common.collections.CollectionUtil;
+import nl.agiletech.flow.common.util.Assertions;
 import nl.agiletech.flow.project.types.ConfigurationProvider;
 import nl.agiletech.flow.project.types.Context;
 
@@ -30,13 +31,15 @@ public class Configurator {
 	final ObjectDiscoveryOptions options = ObjectDiscoveryOptions.createInstanceForConfigurationDiscovery();
 
 	private Configurator(Context context, ProjectConfiguration projectConfiguration) {
+		Assertions.notNull(context, "context");
+		Assertions.notNull(projectConfiguration, "projectConfiguration");
 		this.context = context;
 		this.projectConfiguration = projectConfiguration;
 	}
 
 	public Map<String, Object> configure() throws IllegalArgumentException, IllegalAccessException,
 			InvocationTargetException, NoSuchAlgorithmException, IOException {
-		try (ConsoleUtil log = ConsoleUtil.OUT) {
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
 			Map<String, Object> currentConfiguration = new LinkedHashMap<>();
 			currentConfiguration.putAll(context.getConfiguration());
 
@@ -69,12 +72,15 @@ public class Configurator {
 
 	private void interrogateConfigurationProvider(ConfigurationProvider configurationProvider,
 			Map<String, Object> configuration) throws IllegalAccessException, InvocationTargetException {
+		Assertions.notNull(configurationProvider, "configurationProvider");
+		Assertions.notNull(configuration, "configuration");
 		Object obj = configurationProvider.provideConfiguration();
 		Map<String, Object> objects = ClassUtil.discoverObjects(obj, context, options);
 		CollectionUtil.flatten(objects, configuration);
 	}
 
 	private void printToLog(Map<String, Object> configuration) {
+		Assertions.notNull(configuration, "configuration");
 		for (String key : configuration.keySet()) {
 			printToLog(key, configuration.get(key));
 		}
@@ -82,7 +88,8 @@ public class Configurator {
 
 	@SuppressWarnings("rawtypes")
 	private void printToLog(String key, Object value) {
-		try (ConsoleUtil log = ConsoleUtil.OUT) {
+		Assertions.notEmpty(key, "key");
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
 			Object v = value;
 			if (v == null) {
 				log.normal().foreground(Color.GREEN).append("  +" + key + " = <null>]").print();

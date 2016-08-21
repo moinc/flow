@@ -9,6 +9,8 @@ package nl.agiletech.flow.project.types;
  * @author moincreemers
  *
  */
+// TODO: make Aspect extend a Task because an aspect does need to
+// generate instructions to be executed on the target platform
 public interface Aspect extends AttributeSource {
 	/**
 	 * Returns true if this aspect is required for the object it applies to.

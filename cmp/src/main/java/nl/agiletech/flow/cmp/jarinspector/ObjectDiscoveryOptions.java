@@ -1,9 +1,13 @@
 /*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.cmp.jarinspector;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import nl.agiletech.flow.project.annotation.FlowIgnore;
 import nl.agiletech.flow.project.types.Filter;
 
 public class ObjectDiscoveryOptions {
@@ -17,11 +21,13 @@ public class ObjectDiscoveryOptions {
 	private final List<String> excludedPackages = new ArrayList<>();
 	private boolean expandCollections = false;
 	private Filter<Class<?>> typeFilter = DEFAULT_TYPEFILTER;
+	private final Set<Class<? extends Annotation>> annotationClasses = new HashSet<>();
 
 	public static ObjectDiscoveryOptions createInstanceForDependencyDiscovery() {
 		ObjectDiscoveryOptions c = new ObjectDiscoveryOptions();
 		c.excludedPackages.add("java");
 		c.expandCollections = true;
+		c.withAnnotationClassFilter(FlowIgnore.class);
 		return c;
 	}
 
@@ -45,8 +51,17 @@ public class ObjectDiscoveryOptions {
 		return typeFilter;
 	}
 
+	public Set<Class<? extends Annotation>> getAnnotationClasses() {
+		return annotationClasses;
+	}
+
 	public ObjectDiscoveryOptions withTypeFilter(Filter<Class<?>> typeFilter) {
 		this.typeFilter = typeFilter != null ? typeFilter : DEFAULT_TYPEFILTER;
+		return this;
+	}
+
+	public ObjectDiscoveryOptions withAnnotationClassFilter(Class<? extends Annotation> annotationClass) {
+		annotationClasses.add(annotationClass);
 		return this;
 	}
 }

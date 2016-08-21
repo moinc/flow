@@ -1,5 +1,7 @@
 package nl.agiletech.flow.project.types;
 
+import nl.agiletech.flow.common.util.Assertions;
+
 public class Instruction {
 	public static final class TYPE {
 		// must download
@@ -31,11 +33,11 @@ public class Instruction {
 
 	public Instruction(String id, String key, String description, int type, String resource) {
 		super();
-		assert id != null && id.length() != 0;
-		assert key != null && key.length() != 0;
-		assert description != null && description.length() != 0;
-		assert type != 0;
-		assert resource != null && resource.length() != 0;
+		Assertions.notEmpty(id, "id");
+		Assertions.notEmpty(key, "key");
+		Assertions.notEmpty(description, "description");
+		Assertions.notEmpty(type, "type");
+		Assertions.notEmpty(resource, "resource");
 		this.id = id;
 		this.key = key;
 		this.description = description;
@@ -83,4 +85,13 @@ public class Instruction {
 		this.resource = resource;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Instruction) {
+			Instruction other = (Instruction) obj;
+			return id.equals(other.id) && key.equals(other.key) && description.equals(other.description)
+					&& type == other.type && resource.equals(other.resource);
+		}
+		return super.equals(obj);
+	}
 }

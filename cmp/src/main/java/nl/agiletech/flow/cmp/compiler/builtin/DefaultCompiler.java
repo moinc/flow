@@ -12,6 +12,7 @@ import nl.agiletech.flow.cmp.jarinspector.InspectorLoadException;
 import nl.agiletech.flow.cmp.jarinspector.JarInspector;
 import nl.agiletech.flow.cmp.project.ConfigurationResolver;
 import nl.agiletech.flow.cmp.project.Configurator;
+import nl.agiletech.flow.cmp.project.RequirementChecker;
 import nl.agiletech.flow.cmp.project.DependencyResolver;
 import nl.agiletech.flow.cmp.project.GlobalConfigurationMapper;
 import nl.agiletech.flow.cmp.project.NodeResolver;
@@ -19,6 +20,7 @@ import nl.agiletech.flow.cmp.project.PlatformResolver;
 import nl.agiletech.flow.cmp.project.ProjectConfiguration;
 import nl.agiletech.flow.cmp.project.RootNodeIdentifier;
 import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
+import nl.agiletech.flow.common.util.Assertions;
 import nl.agiletech.flow.common.util.StringUtil;
 import nl.agiletech.flow.project.types.Context;
 import nl.agiletech.flow.project.types.NodeId;
@@ -33,6 +35,7 @@ public class DefaultCompiler implements Compiler {
 	final DefaultCompilerOptions compileOptions;
 
 	public DefaultCompiler(DefaultCompilerOptions compileOptions) {
+		Assertions.notNull(compileOptions, "compileOptions");
 		this.compileOptions = compileOptions;
 	}
 
@@ -43,7 +46,7 @@ public class DefaultCompiler implements Compiler {
 	 */
 	@Override
 	public Context compile() throws CompileException {
-		try (ConsoleUtil log = ConsoleUtil.OUT) {
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
 			log.faint().append("--- compile ---").print();
 
 			// create object that holds all project specific classes and
@@ -94,12 +97,13 @@ public class DefaultCompiler implements Compiler {
 				// resolve dependencies
 				DependencyResolver.createInstance(context, projectConfiguration).resolve();
 
+				// check requirements
+				RequirementChecker.createInstance(context, projectConfiguration).satisfy();
+
 				// locate platform
 				PlatformResolver.createInstance(context, projectConfiguration).resolve();
 
-				context.validate();
-
-				if (!context.getValidationErrors().isEmpty()) {
+				if (!context.isValid()) {
 					throw new CompileException(
 							"invalid context: " + StringUtil.join(context.getValidationErrors(), ", "));
 				}

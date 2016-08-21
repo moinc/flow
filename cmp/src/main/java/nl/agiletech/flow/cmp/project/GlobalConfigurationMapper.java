@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import nl.agiletech.flow.common.cli.logging.Color;
 import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
+import nl.agiletech.flow.common.util.Assertions;
 import nl.agiletech.flow.project.types.ConfigurationMapper;
 import nl.agiletech.flow.project.types.ConfigurationProvider;
 import nl.agiletech.flow.project.types.Context;
@@ -18,13 +19,15 @@ public class GlobalConfigurationMapper implements ConfigurationMapper {
 		return new GlobalConfigurationMapper(projectConfiguration);
 	}
 
-	private GlobalConfigurationMapper(ProjectConfiguration fpc) {
-		this.projectConfiguration = fpc;
+	private GlobalConfigurationMapper(ProjectConfiguration projectConfiguration) {
+		Assertions.notNull(projectConfiguration, "projectConfiguration");
+		this.projectConfiguration = projectConfiguration;
 	}
 
 	@Override
 	public void mapConfigurations(Context context) {
-		try (ConsoleUtil log = ConsoleUtil.OUT) {
+		Assertions.notNull(context, "context");
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
 			log.normal().append("global configuration classes:").print();
 			for (Class<?> clazz : projectConfiguration.getConfigurationClasses()) {
 				ConfigurationProvider configurationProvider = new DefaultConfigurationProvider(clazz);

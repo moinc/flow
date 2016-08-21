@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.sun.net.httpserver.HttpExchange;
 
+import nl.agiletech.flow.common.util.Assertions;
+
 /**
  * @author moincreemers
  *
@@ -57,7 +59,7 @@ public class DefaultResourceMatcher implements ResourceMatcher {
 	 * @return
 	 */
 	protected Queue<String> getPath(URI uri) {
-		assert uri != null;
+		Assertions.notNull(uri, "uri");
 		Queue<String> queue = new ConcurrentLinkedQueue<>();
 		String[] segments = uri.getPath().split("/");
 		for (String segment : segments) {

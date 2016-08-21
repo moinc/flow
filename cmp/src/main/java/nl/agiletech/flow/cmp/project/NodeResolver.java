@@ -9,6 +9,7 @@ import nl.agiletech.flow.cmp.jarinspector.ClassUtil;
 import nl.agiletech.flow.cmp.jarinspector.ObjectDiscoveryOptions;
 import nl.agiletech.flow.common.cli.logging.Color;
 import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
+import nl.agiletech.flow.common.util.Assertions;
 import nl.agiletech.flow.project.types.Context;
 import nl.agiletech.flow.project.types.Filter;
 import nl.agiletech.flow.project.types.Identity;
@@ -31,19 +32,21 @@ public class NodeResolver {
 	final ProjectConfiguration projectConfiguration;
 
 	private NodeResolver(ProjectConfiguration projectConfiguration) {
-		assert projectConfiguration != null;
+		Assertions.notNull(projectConfiguration, "projectConfiguration");
 		this.projectConfiguration = projectConfiguration;
 	}
 
 	public boolean resolveAndAssert(Context context)
 			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+		Assertions.notNull(context, "context");
 		return resolve(context) != null;
 	}
 
 	public Node resolve(Context context)
 			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		assert context.getNodeId() != null;
-		try (ConsoleUtil log = ConsoleUtil.OUT) {
+		Assertions.notNull(context, "context");
+		Assertions.notNull(context.getNodeId(), "context.getNodeId");
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
 			log.normal().append("resolving node class:").print();
 			for (Class<? extends Node> clazz : projectConfiguration.getNodeClasses()) {
 				Node node = ClassUtil.createInstance(clazz, context);

@@ -8,8 +8,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import nl.agiletech.flow.common.util.Assertions;
+
 public final class CollectionUtil {
 	public static boolean containsAny(Collection<?> a, Collection<?> b) {
+		Assertions.notNull(a, "a");
+		Assertions.notNull(b, "b");
 		for (Object elem : b) {
 			if (a.contains(elem)) {
 				return true;
@@ -19,7 +23,7 @@ public final class CollectionUtil {
 	}
 
 	public static void flatten(Map<String, Object> map, Map<String, Object> dest) {
-		assert map != null;
+		Assertions.notNull(map, "map");
 		if (map.size() == 0) {
 			return;
 		}
@@ -50,7 +54,8 @@ public final class CollectionUtil {
 	}
 
 	public static Map<String, Object> diff(Map<String, Object> a, Map<String, Object> b) {
-		assert a != null && b != null;
+		Assertions.notNull(a, "a");
+		Assertions.notNull(b, "b");
 		Map<String, Object> result = new LinkedHashMap<>();
 		if (a.size() == 0 && b.size() == 0) {
 			return result;

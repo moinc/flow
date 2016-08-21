@@ -1,0 +1,31 @@
+{
+	"network" : {
+		"interfaces":{
+			"en0" : {
+				"status":"active",
+				"mac":"78:31:aa:d3:de:42",
+				"mtu":"1453",
+				"ip4":"192.168.0.105",
+				"netmask4":"0xffffff00",
+				"ip6":"f8::7a31:c1ff:fd3:13a",
+				"netmask6":"64"
+			},
+			"en1" : {
+			    "status":"inactive",
+			    "mac":"72:09:12:ed:da:b0",
+			    "mtu":"1500",
+			    "ip4":"",
+			    "netmask4":"",
+			    "ip6":"",
+			    "netmask6":""
+			}
+		},
+		"defaultInterface":"en0",
+		"hostName":"webserver4",
+		"fqdn":"webserver4.local",
+		"domain":"local",
+		"dhcp":"192.168.0.1",
+		"router":"192.168.0.1",
+		"dns":["8.8.8.8","8.8.4.4"]
+	}
+}

@@ -13,6 +13,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import nl.agiletech.flow.common.util.Assertions;
+
 public class Template implements TakesContext, ValueTransform<String>, Serializable {
 	private static final long serialVersionUID = -4230894039749439108L;
 
@@ -25,13 +27,14 @@ public class Template implements TakesContext, ValueTransform<String>, Serializa
 		final Charset charset;
 
 		public InlineTemplateSource(String src) {
-			assert src != null;
+			Assertions.notNull(src, "src");
 			this.src = src;
 			this.charset = StandardCharsets.UTF_8;
 		}
 
 		public InlineTemplateSource(String src, Charset charset) {
-			assert src != null && charset != null;
+			Assertions.notNull(src, "src");
+			Assertions.notNull(charset, "charset");
 			this.src = src;
 			this.charset = charset;
 		}
@@ -48,13 +51,14 @@ public class Template implements TakesContext, ValueTransform<String>, Serializa
 		final Charset charset;
 
 		public InputStreamTemplateSource(InputStream src) {
-			assert src != null;
+			Assertions.notNull(src, "src");
 			this.src = src;
 			this.charset = StandardCharsets.UTF_8;
 		}
 
 		public InputStreamTemplateSource(InputStream src, Charset charset) {
-			assert src != null && charset != null;
+			Assertions.notNull(src, "src");
+			Assertions.notNull(charset, "charset");
 			this.src = src;
 			this.charset = charset;
 		}
@@ -70,13 +74,14 @@ public class Template implements TakesContext, ValueTransform<String>, Serializa
 		final Charset charset;
 
 		public FileTemplateSource(java.io.File src) {
-			assert src != null;
+			Assertions.notNull(src, "src");
 			this.src = src;
 			this.charset = StandardCharsets.UTF_8;
 		}
 
 		public FileTemplateSource(java.io.File src, Charset charset) {
-			assert src != null && charset != null;
+			Assertions.notNull(src, "src");
+			Assertions.notNull(charset, "charset");
 			this.src = src;
 			this.charset = charset;
 		}
@@ -140,7 +145,7 @@ public class Template implements TakesContext, ValueTransform<String>, Serializa
 
 	@Override
 	public void setContext(Context context) {
-		assert context != null;
+		Assertions.notNull(context, "context");
 		this.context = context;
 	}
 
@@ -172,7 +177,7 @@ public class Template implements TakesContext, ValueTransform<String>, Serializa
 	 * @return String value containing the value.
 	 */
 	public static Object getValue(Template template, Context context) {
-		assert template != null;
+		Assertions.notNull(template, "template");
 		if (context != null) {
 			context.applyTo(template);
 		}

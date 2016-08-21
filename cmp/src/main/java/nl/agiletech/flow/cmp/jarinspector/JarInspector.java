@@ -15,6 +15,7 @@ import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
 import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
+import nl.agiletech.flow.common.util.Assertions;
 
 public class JarInspector implements Closeable {
 	private static final Logger LOG = Logger.getLogger(JarInspector.class.getName());
@@ -31,7 +32,9 @@ public class JarInspector implements Closeable {
 	final List<Class<?>> classes = new ArrayList<>();
 
 	private JarInspector(File file, InspectionObserver inspectionObserver) {
-		assert file != null && file.exists();
+		Assertions.notNull(file, "file");
+		Assertions.exists(file, "file");
+		Assertions.notNull(inspectionObserver, "inpectionObserver");
 		this.file = file;
 		this.inspectionObserver = inspectionObserver;
 	}
@@ -49,15 +52,17 @@ public class JarInspector implements Closeable {
 	}
 
 	private String getClassNameFromEntry(String entry) {
+		Assertions.notEmpty(entry, "entry");
 		return entry.substring(0, entry.length() - ".class".length()).replace("/", ".");
 	}
 
 	private Class<?> getClassForName(String className) throws ClassNotFoundException {
+		Assertions.notEmpty(className, "className");
 		return Class.forName(className, true, loader);
 	}
 
 	public void inspect() throws InspectorLoadException {
-		try (ConsoleUtil log = ConsoleUtil.OUT) {
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
 			log.normal().append("inspecting project: " + file.getAbsolutePath()).print();
 			if (loaded) {
 				return;
@@ -80,6 +85,7 @@ public class JarInspector implements Closeable {
 	}
 
 	public List<String> getEntries(EntryType type) {
+		Assertions.notNull(type, "type");
 		List<String> entries = new ArrayList<>();
 		for (String entry : this.entries) {
 			if (entry.endsWith(".class")) {
@@ -122,6 +128,7 @@ public class JarInspector implements Closeable {
 	}
 
 	private void inspectClasses(List<Class<?>> classes) {
+		Assertions.notNull(classes, "classes");
 		LOG.fine("inspecting classes...");
 		for (Class<?> clazz : classes) {
 			inspectionObserver.observe(clazz);

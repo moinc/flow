@@ -21,6 +21,8 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import nl.agiletech.flow.common.util.Assertions;
+
 public class ConfigurationFile implements TakesConfiguration, TakesContext {
 	private static final Logger LOG = Logger.getLogger(ConfigurationFile.class.getName());
 	static final ObjectMapper OBJECTMAPPER = new ObjectMapper();
@@ -66,7 +68,7 @@ public class ConfigurationFile implements TakesConfiguration, TakesContext {
 
 	@Override
 	public void setContext(Context context) {
-		assert context != null;
+		Assertions.notNull(context, "context");
 		this.context = context;
 	}
 
@@ -80,7 +82,7 @@ public class ConfigurationFile implements TakesConfiguration, TakesContext {
 
 	public <O> List<O> getValues(Filter<Entry<String, Object>> filter,
 			TypeConverter<Entry<String, Object>, O> converter) {
-		assert filter != null;
+		Assertions.notNull(filter, "filter");
 		List<O> result = new ArrayList<>();
 		for (Entry<String, Object> entry : values.entrySet()) {
 			if (entry != null && filter.include(entry)) {
@@ -95,13 +97,15 @@ public class ConfigurationFile implements TakesConfiguration, TakesContext {
 	}
 
 	public Object get(String key, Object nullValue) {
-		assert key != null && !key.isEmpty();
+		Assertions.notEmpty(key, "key");
 		Object value = dereference(values, key);
 		return value == null ? nullValue : value;
 	}
 
 	@SuppressWarnings("rawtypes")
 	private Object dereference(Map map, String key) {
+		Assertions.notNull(map, "map");
+		Assertions.notEmpty(key, "key");
 		Queue<String> keys = new ConcurrentLinkedQueue<>();
 		for (String value : key.split("\\.")) {
 			keys.add(value);
@@ -111,6 +115,8 @@ public class ConfigurationFile implements TakesConfiguration, TakesContext {
 
 	@SuppressWarnings("rawtypes")
 	private Object dereference(Map map, Queue<String> keys) {
+		Assertions.notNull(map, "map");
+		Assertions.notNull(keys, "keys");
 		String key = keys.poll();
 		Object value = map.get(key);
 		if (!keys.isEmpty() && value instanceof Map) {

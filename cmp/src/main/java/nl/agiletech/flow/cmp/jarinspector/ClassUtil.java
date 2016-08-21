@@ -1,6 +1,7 @@
 /*Copyright 2016 Agileworks*/
 package nl.agiletech.flow.cmp.jarinspector;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -14,6 +15,7 @@ import java.util.logging.Logger;
 
 import nl.agiletech.flow.common.collections.CollectionUtil;
 import nl.agiletech.flow.common.util.ArrayUtil;
+import nl.agiletech.flow.common.util.Assertions;
 import nl.agiletech.flow.common.util.StringUtil;
 import nl.agiletech.flow.project.types.Context;
 
@@ -21,6 +23,8 @@ public class ClassUtil {
 	private static final Logger LOG = Logger.getLogger(ClassUtil.class.getName());
 
 	public static <T> T createInstance(Class<? extends T> clazz, Context context) throws ClassUtilException {
+		Assertions.notNull(clazz, "clazz");
+		Assertions.notNull(context, "context");
 		LOG.fine("creating instance from class: " + clazz.getName());
 		try {
 			Constructor<? extends T> ctor = clazz.getConstructor();
@@ -36,7 +40,9 @@ public class ClassUtil {
 
 	public static Map<String, Object> discoverObjects(Object obj, Context context, ObjectDiscoveryOptions options)
 			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		assert obj != null && context != null;
+		Assertions.notNull(obj, "obj");
+		Assertions.notNull(context, "context");
+		Assertions.notNull(options, "options");
 		Class<?> clazz = obj.getClass();
 		Map<String, Object> objects = new LinkedHashMap<>();
 		discoverObjectsFromFields(obj, clazz, objects, options);
@@ -46,13 +52,19 @@ public class ClassUtil {
 
 	static void discoverObjectsFromFields(Object obj, Class<?> clazz, Map<String, Object> objects,
 			ObjectDiscoveryOptions options) throws IllegalAccessException {
-		assert obj != null && objects != null;
+		Assertions.notNull(obj, "obj");
+		Assertions.notNull(clazz, "clazz");
+		Assertions.notNull(objects, "objects");
+		Assertions.notNull(options, "options");
 		String declaredInName = clazz.getName();
 		Field[] fields = clazz.getFields();
 		for (Field field : filter(fields, options)) {
 			field.setAccessible(true);
 			String fieldName = field.getName();
 			Object value = field.get(obj);
+
+			// TODO: if the field is an inline type, then use the field name to
+			// give the object instance name more meaning
 
 			if (options.isExpandCollections() && value instanceof Map<?, ?>) {
 				Map<?, ?> map = (Map<?, ?>) value;
@@ -94,6 +106,8 @@ public class ClassUtil {
 	}
 
 	static Field[] filter(Field[] fields, ObjectDiscoveryOptions options) {
+		Assertions.notNull(fields, "fields");
+		Assertions.notNull(options, "options");
 		List<Field> result = new ArrayList<>();
 		for (Field field : fields) {
 			filterField(field, field.getType(), result, options);
@@ -102,20 +116,37 @@ public class ClassUtil {
 	}
 
 	private static void filterField(Field field, Class<?> type, List<Field> result, ObjectDiscoveryOptions options) {
+		Assertions.notNull(field, "field");
+		Assertions.notNull(result, "result");
+		Assertions.notNull(options, "options");
 		List<Class<?>> componentTypes = new ArrayList<>();
-		if (allowPackage(type, options)) {
-			LOG.fine("+field: " + field.getDeclaringClass().getSimpleName() + "." + field.getName());
-			result.add(field);
-		} else if (isCollectionClass(field, componentTypes)) {
-			Class<?> componentType = componentTypes.get(0);
-			filterField(field, componentType, result, options);
-		} else {
+		if (hasAnnotation(field, options)) {
 			LOG.fine("-field: " + field.getDeclaringClass().getSimpleName() + "." + field.getName());
+		} else {
+			if (allowPackage(type, options)) {
+				LOG.fine("+field: " + field.getDeclaringClass().getSimpleName() + "." + field.getName());
+				result.add(field);
+			} else if (isCollectionClass(field, componentTypes)) {
+				Class<?> componentType = componentTypes.get(0);
+				filterField(field, componentType, result, options);
+			} else {
+				LOG.fine("-field: " + field.getDeclaringClass().getSimpleName() + "." + field.getName());
+			}
 		}
 	}
 
+	private static boolean hasAnnotation(Field field, ObjectDiscoveryOptions options) {
+		for (Class<? extends Annotation> annotationClass : options.getAnnotationClasses()) {
+			if (field.isAnnotationPresent(annotationClass)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	static boolean allowPackage(Class<?> clazz, ObjectDiscoveryOptions options) {
-		assert clazz != null;
+		Assertions.notNull(clazz, "clazz");
+		Assertions.notNull(options, "options");
 		if (clazz.isPrimitive()) {
 			return true;
 		}
@@ -125,6 +156,7 @@ public class ClassUtil {
 	}
 
 	private static String getPackageName(Class<?> clazz) {
+		Assertions.notNull(clazz, "clazz");
 		String className = clazz.getCanonicalName();
 		String[] names = className.split("\\.");
 		names = ArrayUtil.copy(names, new String[Math.max(0, names.length - 1)]);
@@ -132,7 +164,8 @@ public class ClassUtil {
 	}
 
 	static boolean isCollectionClass(Field field, List<Class<?>> componentTypes) {
-		assert field != null && componentTypes != null;
+		Assertions.notNull(field, "field");
+		Assertions.notNull(componentTypes, "componentTypes");
 		if (Map.class.isAssignableFrom(field.getType())) {
 			ParameterizedType pType = (ParameterizedType) field.getGenericType();
 			componentTypes.add((Class<?>) pType.getActualTypeArguments()[1]);

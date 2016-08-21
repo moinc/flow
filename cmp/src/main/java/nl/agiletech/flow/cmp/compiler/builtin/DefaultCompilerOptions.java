@@ -3,6 +3,7 @@ package nl.agiletech.flow.cmp.compiler.builtin;
 
 import java.io.File;
 
+import nl.agiletech.flow.common.util.Assertions;
 import nl.agiletech.flow.project.types.ConfigurationSettings;
 import nl.agiletech.flow.project.types.NodeData;
 import nl.agiletech.flow.project.types.RequestType;
@@ -21,6 +22,10 @@ public class DefaultCompilerOptions {
 	private DefaultCompilerOptions(ConfigurationSettings configurationSettings, File projectFile,
 			RequestType requestType, NodeData nodeData) {
 		super();
+		Assertions.notNull(configurationSettings, "configurationSettings");
+		Assertions.notNull(projectFile, "projectFile");
+		Assertions.notNull(requestType, "requestType");
+		Assertions.notNull(nodeData, "nodeData");
 		this.configurationSettings = configurationSettings;
 		this.projectFile = projectFile;
 		this.requestType = requestType;

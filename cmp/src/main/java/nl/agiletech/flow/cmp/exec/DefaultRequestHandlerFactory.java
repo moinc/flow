@@ -6,12 +6,14 @@ import nl.agiletech.flow.cmp.exec.requesthandlers.NullHandler;
 import nl.agiletech.flow.cmp.exec.requesthandlers.ReportRequest;
 import nl.agiletech.flow.cmp.exec.requesthandlers.ResourceRequest;
 import nl.agiletech.flow.cmp.exec.requesthandlers.UpdateRequest;
+import nl.agiletech.flow.common.util.Assertions;
 import nl.agiletech.flow.project.types.Context;
 
 public class DefaultRequestHandlerFactory implements RequestHandlerFactory {
 	final Context context;
 
 	public DefaultRequestHandlerFactory(Context context) {
+		Assertions.notNull(context, "context");
 		this.context = context;
 	}
 

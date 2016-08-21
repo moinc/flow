@@ -24,16 +24,9 @@ import nl.agiletech.flow.project.types.ConfigurationSettings;
 
 public final class HttpTestUtil {
 	public static ConfigurationSettings createConfigurationSettings(Class<?> clazz) throws IOException {
-		try (InputStream src = clazz.getResourceAsStream("flowconfig.json")) {
+		try (InputStream src = clazz.getResourceAsStream("flowconfig.test.json")) {
 			return ConfigurationSettings.loadFrom(src);
 		}
-	}
-
-	public static HttpHandler createInspectServletResourceRouter(ConfigurationSettings configurationSettings)
-			throws ServletException {
-		ResourceRouterHttpHandler resourceRouter = new ResourceRouterHttpHandler(configurationSettings);
-		resourceRouter.addServlet(AllMatchers.createInspectMatcher(), new InspectServlet());
-		return resourceRouter;
 	}
 
 	public static HttpHandler createUpdateServletResourceRouter(ConfigurationSettings configurationSettings)

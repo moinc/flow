@@ -14,6 +14,8 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
+import nl.agiletech.flow.common.util.Assertions;
 import nl.agiletech.flow.project.types.ConfigurationSettings;
 
 public class SimpleHttpServer {
@@ -25,27 +27,32 @@ public class SimpleHttpServer {
 	List<ServletContextListener> listeners = new ArrayList<>();
 
 	public SimpleHttpServer(ConfigurationSettings configurationSettings, HttpHandler rootHandler) {
-		assert configurationSettings != null && rootHandler != null;
+		Assertions.notNull(configurationSettings, "configurationSettings");
+		Assertions.notNull(rootHandler, "rootHandler");
 		this.configurationSettings = configurationSettings;
 		this.rootHandler = rootHandler;
 	}
 
 	public void start(int port) throws IOException, ServletException {
-		LOG.info("--- http ---");
-		InetSocketAddress inetSocketAddress = new InetSocketAddress(port);
-		server = HttpServer.create(inetSocketAddress, 0);
-		context = server.createContext("/", rootHandler);
-		onContextInitialized(context);
-		server.setExecutor(null);
-		server.start();
-		LOG.info("http service endpoint: " + server.getAddress().toString());
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
+			log.faint().append("--- http ---").print();
+			InetSocketAddress inetSocketAddress = new InetSocketAddress(port);
+			server = HttpServer.create(inetSocketAddress, 0);
+			context = server.createContext("/", rootHandler);
+			onContextInitialized(context);
+			server.setExecutor(null);
+			server.start();
+			log.normal().append("http service endpoint: " + server.getAddress().toString()).print();
+		}
 	}
 
 	public void stop(int secondsDelay) {
-		LOG.info("stopping...");
-		onContextDestroyed(context);
-		server.stop(secondsDelay);
-		LOG.info("http service stopped");
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
+			log.normal().append("stopping...").print();
+			onContextDestroyed(context);
+			server.stop(secondsDelay);
+			log.normal().append("http service stopped").print();
+		}
 	}
 
 	public void addListener(ServletContextListener listener) {

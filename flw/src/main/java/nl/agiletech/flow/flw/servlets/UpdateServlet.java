@@ -1,72 +1,51 @@
 package nl.agiletech.flow.flw.servlets;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nl.agiletech.flow.cmp.compiler.CompileException;
+import org.apache.http.entity.ContentType;
+
 import nl.agiletech.flow.cmp.compiler.builtin.DefaultCompiler;
 import nl.agiletech.flow.cmp.compiler.builtin.DefaultCompilerOptions;
 import nl.agiletech.flow.cmp.exec.ProjectExecutor;
-import nl.agiletech.flow.common.io.FileUtil;
-import nl.agiletech.flow.common.io.TempFile;
-import nl.agiletech.flow.flw.http.HttpServletConfig;
-import nl.agiletech.flow.flw.matchers.AllMatchers;
-import nl.agiletech.flow.project.types.ConfigurationSettings;
+import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
 import nl.agiletech.flow.project.types.Context;
-import nl.agiletech.flow.project.types.NodeData;
 import nl.agiletech.flow.project.types.RequestType;
 
 @SuppressWarnings("serial")
-public class UpdateServlet extends HttpServlet {
+public class UpdateServlet extends AbstractServlet {
 	private static final Logger LOG = Logger.getLogger(UpdateServlet.class.getName());
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		LOG.info("processing update request...");
-		RequestType requestType = RequestType.UPDATE;
-
-		// load config
-		ConfigurationSettings configurationSettings = (getServletConfig() instanceof HttpServletConfig)
-				? ((HttpServletConfig) getServletConfig()).getConfigurationSettings() : null;
-
-		// get project name from url, then expand using configuration settings
-		String projectName = (String) req.getAttribute(AllMatchers.PROP_PROJECTNAME);
-		File projectRoot = configurationSettings.getProjectRoot();
-		File projectFile = FileUtil.findFile(projectRoot, projectName, "jar");
-
-		// the body of the request should have the node data
-		NodeData nodeData = NodeData.loadFrom(req.getInputStream());
-
-		try {
-			// compile project
-			DefaultCompilerOptions compileOptions = DefaultCompilerOptions.createInstance(configurationSettings,
-					projectFile, requestType, nodeData);
-			Context context = DefaultCompiler.createInstance(compileOptions).compile();
-
-			// execute the project
-			File temp = TempFile.create();
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
+			log.faint().append("--- processing request ---").print();
+			log.normal().append("request url: " + req.getRequestURL().toString()).print();
 			try {
-				try (OutputStream output = new FileOutputStream(temp)) {
-					ProjectExecutor.createInstance(output, context).run();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} finally {
-				// delete the temp file
-				temp.delete();
-			}
+				RequestType requestType = isNewSession() ? RequestType.INSPECT : RequestType.UPDATE;
 
-		} catch (CompileException e) {
-			throw new ServletException(e);
+				// compile project
+				DefaultCompilerOptions compileOptions = DefaultCompilerOptions
+						.createInstance(getConfigurationSettings(), getProjectFile(), requestType, getNodeData());
+				Context context = DefaultCompiler.createInstance(compileOptions).compile();
+
+				// set mime type
+				resp.setContentType(ContentType.APPLICATION_JSON.getMimeType());
+
+				// execute the project
+				ProjectExecutor.createInstance(resp.getOutputStream(), context).run();
+
+				resp.setStatus(200);
+			} catch (Exception e) {
+				log.error().append(e.getMessage()).print();
+				resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+			} finally {
+				log.faint().append("\n--- done ---").print();
+			}
 		}
 	}
 }

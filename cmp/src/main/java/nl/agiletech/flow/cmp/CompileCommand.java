@@ -18,7 +18,6 @@ import nl.agiletech.flow.common.cli.CliException;
 import nl.agiletech.flow.common.cli.Command;
 import nl.agiletech.flow.common.cli.CommandExecutor;
 import nl.agiletech.flow.common.cli.CommandInfo;
-import nl.agiletech.flow.common.cli.logging.Color;
 import nl.agiletech.flow.common.cli.logging.ConsoleUtil;
 import nl.agiletech.flow.common.io.FileUtil;
 import nl.agiletech.flow.common.io.TempFile;
@@ -52,7 +51,7 @@ public class CompileCommand implements CommandInfo, CommandExecutor {
 
 	@Override
 	public void execute(Command command, CommandLine commandLine, AppState appState) throws CliException {
-		try (ConsoleUtil log = ConsoleUtil.OUT) {
+		try (ConsoleUtil log = ConsoleUtil.OUT.withLogger(LOG)) {
 			// process options and arguments
 
 			File flowConfigFile = null;
@@ -117,20 +116,19 @@ public class CompileCommand implements CommandInfo, CommandExecutor {
 				}
 				// print output to console
 				log.faint().append("--- output ---").print();
-				// LOG.info("--- output ---");
 				FileUtil.copy(temp, System.out);
-				log.faint().append("\n--- done ---").print();
-				// LOG.info("\n--- done ---");
 
 				// delete the temp file
 				temp.delete();
 
 			} catch (CompileException e) {
+				log.error().append("compile error: " + e.getMessage()).print();
 				throw new CliException(e);
 			} catch (IOException e) {
+				log.error().append("io error" + e.getMessage()).print();
 				throw new CliException(e);
-			} catch (Exception e) {
-				throw new CliException(e);
+			} finally {
+				log.faint().append("\n--- done ---").print();
 			}
 		}
 	}

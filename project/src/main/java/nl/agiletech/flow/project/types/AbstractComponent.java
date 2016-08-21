@@ -20,7 +20,7 @@ abstract class AbstractComponent extends Task {
 	 * @return a dependency
 	 */
 	@Override
-	public Dependency asDependency() {
-		return Dependency.get(getPackageName(), getVersion());
+	public Requirement asRequirement() {
+		return Requirement.get(getPackageName(), getVersion());
 	}
 }

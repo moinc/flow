@@ -1,5 +1,6 @@
 package nl.agiletech.flow.project.types;
 
+import nl.agiletech.flow.common.util.Assertions;
 import nl.agiletech.flow.common.util.NumberUtil;
 
 public class ConfigurationCondition implements Condition {
@@ -119,7 +120,7 @@ public class ConfigurationCondition implements Condition {
 
 	@Override
 	public void setContext(Context context) {
-		assert context != null;
+		Assertions.notNull(context, "context");
 		this.context = context;
 	}
 }
